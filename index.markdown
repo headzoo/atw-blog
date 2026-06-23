@@ -3,7 +3,7 @@ layout: home
 title: Home
 ---
 
-Welcome to REST API Notes.
+Welcome to Application-to-Web Internals.
 
 This site is a lightweight Jekyll blog for sharing practical notes, build tips, and project updates.
 

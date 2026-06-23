@@ -18,7 +18,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: REST API Notes
+title: Application-to-Web Internals
 email: hello@atw-internals.com
 description: >-
   Discover the world of REST APIs with our comprehensive notes and insights. From basic concepts to advanced techniques, we provide valuable resources for developers and enthusiasts alike.
