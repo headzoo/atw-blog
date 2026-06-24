@@ -1,0 +1,16 @@
+{%- if site.posts.size > 0 -%}
+{%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+{%- assign post_limit = site.recent_posts_limit | default: 5 -%}
+<aside class="sidebar" aria-label="Recent posts">
+  <h2 class="sidebar-heading">Recent posts</h2>
+  <ul class="sidebar-post-list">
+    {%- for post in site.posts limit: post_limit -%}
+    <li class="{% if page.url == post.url %}is-active{% endif %}">
+      <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+      <time class="sidebar-post-date" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: date_format
+        }}</time>
+    </li>
+    {%- endfor -%}
+  </ul>
+</aside>
+{%- endif -%}

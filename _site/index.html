@@ -27,8 +27,17 @@
   <link rel="stylesheet" href="/assets/main.css">
   <link rel="stylesheet" href="/assets/custom.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4001/feed.xml" title="Application-to-Web Internals" /></head><body><header class="site-header" role="banner">
   <div class="wrapper header-inner">
-    <a class="site-brand" rel="author" href="/">
-      <span class="site-logo" aria-hidden="true">ATW</span>
+    <a class="site-brand" rel="author" href="/" aria-label="Application-to-Web Internals home">
+      <span class="site-logo" aria-hidden="true">
+        <svg class="site-logo-mark" viewBox="0 0 44 44" focusable="false">
+          <rect class="site-logo-frame" x="5" y="5" width="34" height="34" rx="10" />
+          <path class="site-logo-path" d="M13 28L22 15L31 28" />
+          <path class="site-logo-path site-logo-path--muted" d="M16 28H28" />
+          <circle class="site-logo-node" cx="13" cy="28" r="3" />
+          <circle class="site-logo-node" cx="22" cy="15" r="3" />
+          <circle class="site-logo-node" cx="31" cy="28" r="3" />
+        </svg>
+      </span>
       <span class="site-title">Application-to-Web Internals</span>
     </a><nav class="site-nav" aria-label="Main navigation">
       <input type="checkbox" id="nav-trigger" class="nav-trigger" />
@@ -45,15 +54,15 @@
       </div>
     </nav></div>
 </header><main class="page-content" aria-label="Content">
-    <div class="wrapper">
-      <section class="posts-section" id="latest-posts">
+    <div class="wrapper"><div class="page-layout">
+        <div class="page-layout__main"><section class="posts-section" id="latest-posts">
   <div class="section-header">
     <h2 class="post-list-heading">Latest posts</h2>
     <a class="rss-link" href="/feed.xml">Subscribe via RSS</a>
   </div><div class="post-feed"><article class="post post-preview post-preview--truncated">
       <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">testing</span><span class="post-category">tools</span></div><h2 class="post-title">
           <a href="/rest-api/testing/tools/2026/06/24/postman-alternatives.html">Postman Alternatives</a>
-        </h2><figure class="post-featured-image"><img src="/assets/images/postman-alternatives.png" alt="An API request branching into desktop, terminal, browser, editor, and self-hosted tool options" loading="eager" decoding="async"></figure><div class="post-meta">
+        </h2><figure class="post-featured-image"><a href="/rest-api/testing/tools/2026/06/24/postman-alternatives.html" aria-label="Postman Alternatives"><img src="/assets/images/postman-alternatives.png" alt="An API request branching into desktop, terminal, browser, editor, and self-hosted tool options" loading="lazy" decoding="async"></a></figure><div class="post-meta">
           <time datetime="2026-06-24T08:00:00-04:00">Jun 24, 2026</time>
         </div>
       </header>
@@ -204,7 +213,7 @@
       </p></article><article class="post post-preview post-preview--truncated">
       <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">testing</span></div><h2 class="post-title">
           <a href="/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html">How to test REST APIs with Postman</a>
-        </h2><figure class="post-featured-image"><img src="/assets/images/how-to-test-rest-apis-with-postman.png" alt="A REST API testing workspace with request, response, and test result panels" loading="eager" decoding="async"></figure><div class="post-meta">
+        </h2><figure class="post-featured-image"><a href="/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html" aria-label="How to test REST APIs with Postman"><img src="/assets/images/how-to-test-rest-apis-with-postman.png" alt="A REST API testing workspace with request, response, and test result panels" loading="lazy" decoding="async"></a></figure><div class="post-meta">
           <time datetime="2026-06-23T17:00:00-04:00">Jun 23, 2026</time>
         </div>
       </header>
@@ -407,9 +416,195 @@
 </div><p class="read-more">
         <a href="/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html">Read more &rarr;</a>
       </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">javascript</span><span class="post-category">typescript</span><span class="post-category">migration</span></div><h2 class="post-title">
+          <a href="/javascript/typescript/migration/2026/04/19/migrating-from-javascript-to-typescript.html">Migrating from JavaScript to Typescript</a>
+        </h2><figure class="post-featured-image"><a href="/javascript/typescript/migration/2026/04/19/migrating-from-javascript-to-typescript.html" aria-label="Migrating from JavaScript to Typescript"><img src="/assets/images/migrating-from-javascript-to-typescript.png" alt="JavaScript code transitioning into TypeScript with type annotations and safer interfaces" loading="lazy" decoding="async"></a></figure><div class="post-meta">
+          <time datetime="2026-04-19T08:00:00-04:00">Apr 19, 2026</time>
+        </div>
+      </header>
+      <div class="post-content"><p>Most JavaScript codebases do not need a big-bang rewrite to adopt TypeScript. The migration that works best is incremental: rename a few files, tighten compiler settings over time, and let types catch bugs at the boundaries where they matter most.</p>
+
+<p>This guide walks through a practical path from a running JavaScript project to a TypeScript codebase your team can maintain with confidence.</p>
+
+<h2 id="why-migrate">Why migrate</h2>
+
+<p>TypeScript does not replace JavaScript — it adds a static type layer on top of it. That layer pays off when:</p>
+
+<ul>
+  <li><strong>Interfaces change often</strong> — types document contracts and break builds when callers drift</li>
+  <li><strong>Teams grow</strong> — autocomplete and inline docs reduce onboarding time</li>
+  <li><strong>Refactors are risky</strong> — the compiler finds renamed fields and missing arguments before runtime</li>
+  <li><strong>API boundaries are messy</strong> — request payloads, database rows, and config objects benefit from explicit shapes</li>
+</ul>
+
+<p>The goal is not 100% type coverage on day one. The goal is fewer production bugs and safer refactors with minimal workflow disruption.</p>
+
+<h2 id="prepare-the-codebase">Prepare the codebase</h2>
+
+<p>Before touching file extensions, make the project easy to compile:</p>
+
+<ol>
+  <li><strong>Confirm your build pipeline</strong> — webpack, Vite, esbuild, and <code class="language-plaintext highlighter-rouge">tsc</code> all support TypeScript; pick one source of truth for transpilation</li>
+  <li><strong>Add a baseline <code class="language-plaintext highlighter-rouge">tsconfig.json</code></strong> — start permissive so existing code still passes</li>
+  <li><strong>Run your test suite</strong> — migration should not change runtime behavior; tests are your safety net</li>
+  <li><strong>Fix obvious lint issues</strong> — unused variables and implicit globals become harder to ignore once TypeScript is enabled</li>
+</ol>
+
+<p>A starter config for a gradual migration often looks like this:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"compilerOptions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"target"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES2020"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"module"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ESNext"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"moduleResolution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bundler"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"allowJs"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"checkJs"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"strict"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"skipLibCheck"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"esModuleInterop"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"outDir"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dist"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"rootDir"</span><span class="p">:</span><span class="w"> </span><span class="s2">"src"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"include"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">allowJs: true</code> lets <code class="language-plaintext highlighter-rouge">.js</code> and <code class="language-plaintext highlighter-rouge">.ts</code> files coexist while you migrate file by file.</p>
+
+<h2 id="enable-typescript-gradually">Enable TypeScript gradually</h2>
+
+<p>Avoid renaming every file at once. A proven order:</p>
+
+<ol>
+  <li>Add TypeScript and a <code class="language-plaintext highlighter-rouge">tsconfig.json</code></li>
+  <li>Rename leaf modules first — utilities, helpers, and pure functions with few dependencies</li>
+  <li>Move up the dependency graph toward entry points and framework wiring</li>
+  <li>Rename <code class="language-plaintext highlighter-rouge">.js</code> to <code class="language-plaintext highlighter-rouge">.ts</code> (or <code class="language-plaintext highlighter-rouge">.tsx</code> for React) only when you are ready to fix type errors in that file</li>
+</ol>
+
+<p>Each renamed file should compile cleanly before you move on. Small PRs keep review manageable and reduce merge conflicts.</p>
+
+<h2 id="type-boundaries-first">Type boundaries first</h2>
+
+<p>Not all code needs rich types immediately. Prioritize surfaces where bad data causes the most damage:</p>
+
+<ul>
+  <li><strong>HTTP handlers</strong> — request bodies, query params, and response payloads</li>
+  <li><strong>Database access</strong> — row shapes returned from queries or ORMs</li>
+  <li><strong>Configuration</strong> — environment variables and feature flags</li>
+  <li><strong>Shared libraries</strong> — functions exported to other packages or teams</li>
+</ul>
+
+<p>Example: a REST handler that accepts JSON benefits from an explicit input type:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">type</span> <span class="nx">CreateUserInput</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">email</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">name</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kd">function</span> <span class="nf">parseCreateUser</span><span class="p">(</span><span class="nx">body</span><span class="p">:</span> <span class="nx">unknown</span><span class="p">):</span> <span class="nx">CreateUserInput</span> <span class="p">{</span>
+  <span class="k">if </span><span class="p">(</span>
+    <span class="k">typeof</span> <span class="nx">body</span> <span class="o">!==</span> <span class="dl">"</span><span class="s2">object</span><span class="dl">"</span> <span class="o">||</span>
+    <span class="nx">body</span> <span class="o">===</span> <span class="kc">null</span> <span class="o">||</span>
+    <span class="k">typeof </span><span class="p">(</span><span class="nx">body</span> <span class="kd">as </span><span class="nx">CreateUserInput</span><span class="p">).</span><span class="nx">email</span> <span class="o">!==</span> <span class="dl">"</span><span class="s2">string</span><span class="dl">"</span> <span class="o">||</span>
+    <span class="k">typeof </span><span class="p">(</span><span class="nx">body</span> <span class="kd">as </span><span class="nx">CreateUserInput</span><span class="p">).</span><span class="nx">name</span> <span class="o">!==</span> <span class="dl">"</span><span class="s2">string</span><span class="dl">"</span>
+  <span class="p">)</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nc">Error</span><span class="p">(</span><span class="dl">"</span><span class="s2">Invalid request body</span><span class="dl">"</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nx">body</span> <span class="kd">as </span><span class="nx">CreateUserInput</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Once boundaries are typed, internal implementation details can stay loosely typed until you refactor them.</p>
+
+<h2 id="handle-third-party-packages">Handle third-party packages</h2>
+
+<p>Most popular npm packages ship TypeScript definitions. Install <code class="language-plaintext highlighter-rouge">@types/*</code> packages when types are maintained separately:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pnpm add <span class="nt">-D</span> typescript @types/node
+</code></pre></div></div>
+
+<p>When a library has no types:</p>
+
+<ul>
+  <li>Check for a DefinitelyTyped package (<code class="language-plaintext highlighter-rouge">@types/lodash</code>, etc.)</li>
+  <li>Write a minimal <code class="language-plaintext highlighter-rouge">.d.ts</code> module declaration for the parts you use</li>
+  <li>Wrap untyped libraries behind your own typed adapter so <code class="language-plaintext highlighter-rouge">@ts-ignore</code> does not spread through the codebase</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">skipLibCheck: true</code> avoids type errors inside node_modules while you focus on your own code.</p>
+
+<h2 id="tighten-compiler-settings-over-time">Tighten compiler settings over time</h2>
+
+<p>Start permissive, then enable stricter flags as coverage improves:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Setting</th>
+      <th>What it catches</th>
+      <th>When to enable</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">noImplicitAny</code></td>
+      <td>Functions and variables inferred as <code class="language-plaintext highlighter-rouge">any</code></td>
+      <td>After most files are <code class="language-plaintext highlighter-rouge">.ts</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">strictNullChecks</code></td>
+      <td><code class="language-plaintext highlighter-rouge">null</code> and <code class="language-plaintext highlighter-rouge">undefined</code> misuse</td>
+      <td>When core models are typed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">strict</code></td>
+      <td>Full strict mode bundle</td>
+      <td>When the team is comfortable fixing edge cases</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">noUncheckedIndexedAccess</code></td>
+      <td>Unsafe array/object index access</td>
+      <td>For data-heavy code paths</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Turn on one flag at a time, fix the resulting errors in a dedicated PR, and document the new standard for the team.</p>
+
+<h2 id="common-pitfalls">Common pitfalls</h2>
+
+<ul>
+  <li><strong>Chasing 100% coverage too early</strong> — <code class="language-plaintext highlighter-rouge">any</code> in a legacy module is acceptable during migration; isolate it and schedule cleanup</li>
+  <li><strong>Over-typing before understanding runtime behavior</strong> — types should reflect what the code actually does, not an idealized API</li>
+  <li><strong>Mixing build tools</strong> — let one tool own transpilation; avoid running Babel and <code class="language-plaintext highlighter-rouge">tsc</code> with conflicting settings</li>
+  <li><strong>Ignoring test types</strong> — add <code class="language-plaintext highlighter-rouge">@types/jest</code> or <code class="language-plaintext highlighter-rouge">@types/mocha</code> so test helpers are typed too</li>
+  <li><strong>Big-bang PRs</strong> — large migrations stall in review; incremental renames merge faster</li>
+</ul>
+
+<h2 id="a-practical-migration-checklist">A practical migration checklist</h2>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><code class="language-plaintext highlighter-rouge">tsconfig.json</code> with <code class="language-plaintext highlighter-rouge">allowJs: true</code></li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />TypeScript added as a dev dependency</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Build and test scripts updated</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Boundary modules typed (API, config, persistence)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Third-party types installed or stubbed</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Stricter compiler flags enabled incrementally</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Team agrees on conventions for <code class="language-plaintext highlighter-rouge">any</code>, assertions, and new code</li>
+</ul>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>Migrating from JavaScript to TypeScript is a process, not a switch. Rename files in dependency order, type the edges where bugs are expensive, and tighten compiler settings as confidence grows.</p>
+
+<p>Done well, the migration feels invisible to users — same runtime behavior, fewer surprises for developers. Start with one module this week, ship it, and expand from there.</p>
+</div><p class="read-more">
+        <a href="/javascript/typescript/migration/2026/04/19/migrating-from-javascript-to-typescript.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
       <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">design</span></div><h2 class="post-title">
           <a href="/rest-api/design/2026/01/21/writing-rest-apis-that-developers-will-love.html">Writing REST APIs that Developers Will Love</a>
-        </h2><figure class="post-featured-image"><img src="/assets/images/writing-rest-apis-developers-love.png" alt="A REST API design diagram with resource paths, HTTP method chips, and a JSON response panel" loading="eager" decoding="async"></figure><div class="post-meta">
+        </h2><figure class="post-featured-image"><a href="/rest-api/design/2026/01/21/writing-rest-apis-that-developers-will-love.html" aria-label="Writing REST APIs that Developers Will Love"><img src="/assets/images/writing-rest-apis-developers-love.png" alt="A REST API design diagram with resource paths, HTTP method chips, and a JSON response panel" loading="lazy" decoding="async"></a></figure><div class="post-meta">
           <time datetime="2026-01-21T07:00:00-05:00">Jan 21, 2026</time>
         </div>
       </header>
@@ -689,8 +884,22 @@ GET /posts?status=published&amp;author_id=42
 </div><p class="read-more">
         <a href="/rest-api/design/2026/01/21/writing-rest-apis-that-developers-will-love.html">Read more &rarr;</a>
       </p></article></div>
-</section>
-    </div>
+</section></div><aside class="sidebar" aria-label="Recent posts">
+  <h2 class="sidebar-heading">Recent posts</h2>
+  <ul class="sidebar-post-list"><li class="">
+      <a href="/rest-api/testing/tools/2026/06/24/postman-alternatives.html">Postman Alternatives</a>
+      <time class="sidebar-post-date" datetime="2026-06-24T08:00:00-04:00">Jun 24, 2026</time>
+    </li><li class="">
+      <a href="/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html">How to test REST APIs with Postman</a>
+      <time class="sidebar-post-date" datetime="2026-06-23T17:00:00-04:00">Jun 23, 2026</time>
+    </li><li class="">
+      <a href="/javascript/typescript/migration/2026/04/19/migrating-from-javascript-to-typescript.html">Migrating from JavaScript to Typescript</a>
+      <time class="sidebar-post-date" datetime="2026-04-19T08:00:00-04:00">Apr 19, 2026</time>
+    </li><li class="">
+      <a href="/rest-api/design/2026/01/21/writing-rest-apis-that-developers-will-love.html">Writing REST APIs that Developers Will Love</a>
+      <time class="sidebar-post-date" datetime="2026-01-21T07:00:00-05:00">Jan 21, 2026</time>
+    </li></ul>
+</aside></div></div>
   </main><footer class="site-footer h-card">
   <data class="u-url" href="/"></data>
 

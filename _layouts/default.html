@@ -6,7 +6,14 @@
   {%- include header.html -%}
   <main class="page-content" aria-label="Content">
     <div class="wrapper">
+      {%- if page.layout == 'home' or page.layout == 'post' -%}
+      <div class="page-layout">
+        <div class="page-layout__main">{{ content }}</div>
+        {%- include recent-posts.html -%}
+      </div>
+      {%- else -%}
       {{ content }}
+      {%- endif -%}
     </div>
   </main>
   {%- include footer.html -%}
