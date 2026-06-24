@@ -46,38 +46,649 @@
     </nav></div>
 </header><main class="page-content" aria-label="Content">
     <div class="wrapper">
-      <section class="hero">
-  <div class="hero-badge">Engineering notes &amp; API insights</div>
-  <h1 class="hero-title">Application-to-Web Internals</h1>
-  <div class="hero-body">
-    <p>Practical notes on REST APIs, web internals, and the craft of building software that connects applications to the web.</p>
-
-<p>Short articles, build tips, and lessons learned — written for developers who care about clarity and good engineering.</p>
-
-  </div>
-  <div class="hero-actions">
-    <a class="btn btn-primary" href="#latest-posts">Browse posts</a>
-    <a class="btn btn-secondary" href="/about/">About this site</a>
-  </div>
-</section><section class="posts-section" id="latest-posts">
+      <section class="posts-section" id="latest-posts">
   <div class="section-header">
     <h2 class="post-list-heading">Latest posts</h2>
     <a class="rss-link" href="/feed.xml">Subscribe via RSS</a>
-  </div>
+  </div><div class="post-feed"><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">testing</span><span class="post-category">tools</span></div><h2 class="post-title">
+          <a href="/rest-api/testing/tools/2026/06/24/postman-alternatives.html">Postman Alternatives</a>
+        </h2><figure class="post-featured-image"><img src="/assets/images/postman-alternatives.png" alt="An API request branching into desktop, terminal, browser, editor, and self-hosted tool options" loading="eager" decoding="async"></figure><div class="post-meta">
+          <time datetime="2026-06-24T08:00:00-04:00">Jun 24, 2026</time>
+        </div>
+      </header>
+      <div class="post-content"><p>Postman is the default API client for a lot of teams. It is polished, familiar, and covers most day-to-day REST testing needs. But not every project fits the same workflow. Pricing, required accounts, cloud sync, privacy requirements, or a preference for lighter tools often push developers to look elsewhere.</p>
 
-  <ul class="post-list"><li class="post-card">
-      <a class="post-card-link" href="/rest-api/testing/tools/2026/06/24/postman-alternatives.html">
-        <div class="post-card-meta">
-          <time datetime="2026-06-24T08:00:00-04:00">Jun 24, 2026</time><span class="post-card-category">rest-api</span></div>
-        <h3 class="post-card-title">Postman Alternatives</h3><p class="post-card-excerpt">Postman is the default API client for a lot of teams. It is polished, familiar, and covers most day-to-day REST testing needs. But not every project fits the...</p><span class="post-card-read">Read article &rarr;</span>
-      </a>
-    </li><li class="post-card">
-      <a class="post-card-link" href="/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html">
-        <div class="post-card-meta">
-          <time datetime="2026-06-23T17:00:00-04:00">Jun 23, 2026</time><span class="post-card-category">rest-api</span></div>
-        <h3 class="post-card-title">How to test REST APIs with Postman</h3><p class="post-card-excerpt">Postman is one of the fastest ways to explore and validate a REST API without writing a full client. You can send requests, inspect responses, and repeat the...</p><span class="post-card-read">Read article &rarr;</span>
-      </a>
-    </li></ul>
+<p>This guide surveys practical Postman alternatives — from desktop apps that keep your data local to browser and editor tools that fit different workflows. None of these tools need to replace Postman entirely; the right choice depends on how you work, who you collaborate with, and where you want your collections to live.</p>
+
+<h2 id="why-teams-look-beyond-postman">Why teams look beyond Postman</h2>
+
+<p>Common reasons developers switch or supplement Postman include:</p>
+
+<ul>
+  <li><strong>Cost and licensing</strong> — per-seat plans add up for larger teams</li>
+  <li><strong>Account and cloud requirements</strong> — some workflows need offline or self-hosted options</li>
+  <li><strong>Data ownership</strong> — collections tied to a vendor account are harder to move or audit</li>
+  <li><strong>Workflow fit</strong> — git-based collections, CLI automation, or in-editor testing may match your stack better</li>
+  <li><strong>Feature scope</strong> — a simpler tool can be faster when you only need request/response testing</li>
+</ul>
+
+<p>The alternatives below address different combinations of these needs.</p>
+
+<h2 id="harborclient">HarborClient</h2>
+
+<p><a href="https://harborclient.com/">HarborClient</a> is a free, open-source desktop API client for macOS, Windows, and Linux. It offers a familiar Postman-style workspace — collections, environments, request scripts, tests, and a tabbed editor — while keeping your work on your machine or on storage you control. There are no accounts, subscriptions, or required cloud sync.</p>
+
+<h3 id="what-harborclient-offers">What HarborClient offers</h3>
+
+<ul>
+  <li><strong>Collections and environments</strong> — organize saved requests, share variables across a collection, and switch global environment groups from the tab bar</li>
+  <li><strong>Request builder</strong> — method selector, URL bar, query params, headers, and body (JSON or plain text)</li>
+  <li><strong>Scripts and tests</strong> — pre- and post-request JavaScript at the collection or request level; post-request tests with assertions shown in a Tests tab</li>
+  <li><strong>Variable substitution</strong> — use <code class="language-plaintext highlighter-rouge">{{variable}}</code> placeholders in URLs, headers, params, body, and scripts</li>
+  <li><strong>Tabbed workspace</strong> — open multiple requests side by side with independent drafts and responses</li>
+</ul>
+
+<h3 id="storage-and-collaboration">Storage and collaboration</h3>
+
+<p>HarborClient defaults to local SQLite and supports pluggable backends:</p>
+
+<ul>
+  <li><strong>Local SQLite</strong> — collections and environments stay on your machine by default</li>
+  <li><strong>Remote databases</strong> — optional MySQL, PostgreSQL, or Firestore when you need shared storage you operate</li>
+  <li><strong>Git-backed collections</strong> — version-controlled collection files you can commit and push from the app</li>
+  <li><strong>Team Hub</strong> — self-hosted collaboration with token-based access, without sharing database credentials across teammates</li>
+  <li><strong>Encrypted sharing</strong> — signed share tokens for remote collections using RSA keys you manage</li>
+</ul>
+
+<h3 id="migrating-from-postman">Migrating from Postman</h3>
+
+<p>HarborClient imports <strong>Postman v2.1</strong> collection exports. After install, use <strong>Collections → Import</strong> or <strong>File → Import</strong> to bring existing work over. Some Postman-specific settings and scripts may need adjustment after import — HarborClient does not claim full feature parity — but the core request, variable, and collection structure usually transfers cleanly.</p>
+
+<p><strong>Best for:</strong> individual developers and teams that want a real desktop app, local or self-hosted data, and a Postman-like workflow without vendor lock-in.</p>
+
+<p>Downloads and docs: <a href="https://harborclient.com/">harborclient.com</a> · <a href="https://github.com/headzoo/harborclient/releases/latest">GitHub releases</a></p>
+
+<h2 id="insomnia">Insomnia</h2>
+
+<p><a href="https://insomnia.rest/">Insomnia</a> is a dedicated REST and GraphQL API client with a clean interface and strong support for multiple auth types, environment variables, and request chaining. It targets developers who want a polished, standalone app focused on API design and exploration rather than broader platform features.</p>
+
+<p>Insomnia organizes work into <strong>design documents</strong> and <strong>collections</strong>, supports GraphQL queries alongside REST, and includes plugins for extending behavior. Cloud sync and team features are available on paid plans; local-only use remains possible for individual workflows.</p>
+
+<p><strong>Best for:</strong> developers who need REST and GraphQL in one polished desktop client and are comfortable with Insomnia’s account and sync model.</p>
+
+<h2 id="bruno">Bruno</h2>
+
+<p><a href="https://www.usebruno.com/">Bruno</a> stores API collections as plain files in a folder on disk — typically committed to git. There is no proprietary cloud sync; collaboration happens through branches, pull requests, and your existing version-control workflow.</p>
+
+<p>Bruno supports environments, scripting, and a straightforward request editor. Because collections are files, diffs and reviews in git are natural. The trade-off is less built-in team infrastructure than account-based clients provide.</p>
+
+<p><strong>Best for:</strong> teams that want collections in the repo next to application code and prefer git as the collaboration layer.</p>
+
+<h2 id="httpie">HTTPie</h2>
+
+<p><a href="https://httpie.io/">HTTPie</a> started as a friendly command-line HTTP client (<code class="language-plaintext highlighter-rouge">http GET api.example.com/users</code>) and expanded into a desktop app and other tooling. The CLI remains popular for quick one-off requests, scripting, and automation in shell pipelines.</p>
+
+<p>For developers who already live in the terminal, HTTPie can be faster than opening a GUI for exploratory calls. The desktop app adds a visual layer when you want forms and response inspection without leaving the HTTPie ecosystem.</p>
+
+<p><strong>Best for:</strong> CLI-first workflows, scripting, and developers who want minimal friction for ad hoc HTTP calls.</p>
+
+<h2 id="hoppscotch">Hoppscotch</h2>
+
+<p><a href="https://hoppscotch.com/">Hoppscotch</a> is a browser-based API client for quick REST, GraphQL, and WebSocket testing. No install is required for the web app — open a tab, paste a URL, and send a request.</p>
+
+<p>Hoppscotch fits spur-of-the-moment exploration, demos, and environments where installing desktop software is awkward. Collections and workspaces exist, but the tool is optimized for speed and accessibility rather than deep team collection management.</p>
+
+<p><strong>Best for:</strong> fast browser-based exploration and lightweight testing without a local install.</p>
+
+<h2 id="thunder-client">Thunder Client</h2>
+
+<p><a href="https://www.thunderclient.com/">Thunder Client</a> is a VS Code extension that brings REST API testing into the editor. Collections, environments, and test scripts live inside your IDE workspace, which suits developers who want to test APIs while coding without switching applications.</p>
+
+<p>Thunder Client covers common HTTP methods, auth, and collection organization. It integrates with the editor’s UI patterns — sidebar panels, keyboard shortcuts, and workspace-scoped storage — so API tests stay close to the code they exercise.</p>
+
+<p><strong>Best for:</strong> VS Code users who want API testing embedded in their editor workflow.</p>
+
+<h2 id="how-to-choose">How to choose</h2>
+
+<p>Rather than ranking tools on every feature, match the tool to your constraints:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>If you need…</th>
+      <th>Consider…</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Local data, no accounts, open source, Postman-like desktop app</td>
+      <td>HarborClient</td>
+    </tr>
+    <tr>
+      <td>REST + GraphQL in a polished standalone client</td>
+      <td>Insomnia</td>
+    </tr>
+    <tr>
+      <td>Collections as git files in your repository</td>
+      <td>Bruno</td>
+    </tr>
+    <tr>
+      <td>Terminal and scripting workflows</td>
+      <td>HTTPie</td>
+    </tr>
+    <tr>
+      <td>Zero-install browser testing</td>
+      <td>Hoppscotch</td>
+    </tr>
+    <tr>
+      <td>API testing inside VS Code</td>
+      <td>Thunder Client</td>
+    </tr>
+    <tr>
+      <td>Full platform features, monitors, and broad enterprise tooling</td>
+      <td>Postman (still a valid choice)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Also weigh <strong>collaboration model</strong>: vendor cloud sync, shared database, git repos, self-hosted hub, or no sharing at all. And weigh <strong>automation depth</strong>: post-request test scripts are enough for many teams; larger CI pipelines may still rely on code-based integration tests regardless of which client you use for manual exploration.</p>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>There is no single best Postman alternative. HarborClient stands out when privacy, local or self-hosted storage, and a free desktop workflow matter. Bruno fits git-centric teams. Hoppscotch and HTTPie cover quick and CLI paths. Thunder Client keeps testing inside the editor. Insomnia remains a strong option when you want a dedicated API client with GraphQL support.</p>
+
+<p>Pick based on where your collections should live, how your team collaborates, and whether you prefer desktop, browser, editor, or command-line tools. Start with one endpoint in the client that matches your workflow, import or recreate a small collection, and expand from there — the same progression that works with Postman applies to every alternative on this list.</p>
+</div><p class="read-more">
+        <a href="/rest-api/testing/tools/2026/06/24/postman-alternatives.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">testing</span></div><h2 class="post-title">
+          <a href="/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html">How to test REST APIs with Postman</a>
+        </h2><figure class="post-featured-image"><img src="/assets/images/how-to-test-rest-apis-with-postman.png" alt="A REST API testing workspace with request, response, and test result panels" loading="eager" decoding="async"></figure><div class="post-meta">
+          <time datetime="2026-06-23T17:00:00-04:00">Jun 23, 2026</time>
+        </div>
+      </header>
+      <div class="post-content"><p>Postman is one of the fastest ways to explore and validate a REST API without writing a full client. You can send requests, inspect responses, and repeat the same checks across environments — all from a single workspace.</p>
+
+<p>This guide walks through a practical workflow for testing REST APIs with Postman, from your first request to a small reusable test suite.</p>
+
+<h2 id="why-use-postman-for-rest-apis">Why use Postman for REST APIs</h2>
+
+<p>REST APIs are tested by sending HTTP requests and verifying the responses. Postman gives you a visual interface for that work, which makes it easy to:</p>
+
+<ul>
+  <li>Try endpoints before frontend or integration code exists</li>
+  <li>Share example requests with teammates</li>
+  <li>Save headers, auth tokens, and base URLs in one place</li>
+  <li>Automate basic response checks with test scripts</li>
+</ul>
+
+<p>For quick manual testing and lightweight automation, Postman is often enough on its own.</p>
+
+<h2 id="create-your-first-request">Create your first request</h2>
+
+<p>Start with a simple <code class="language-plaintext highlighter-rouge">GET</code> request:</p>
+
+<ol>
+  <li>Open Postman and create a new request.</li>
+  <li>Set the method to <code class="language-plaintext highlighter-rouge">GET</code>.</li>
+  <li>Enter the URL, for example <code class="language-plaintext highlighter-rouge">https://jsonplaceholder.typicode.com/posts/1</code>.</li>
+  <li>Click <strong>Send</strong>.</li>
+</ol>
+
+<p>You should see a <code class="language-plaintext highlighter-rouge">200 OK</code> response with a JSON body. That is the basic loop for every REST test: build a request, send it, inspect the result.</p>
+
+<h2 id="set-method-url-headers-and-body">Set method, URL, headers, and body</h2>
+
+<p>Most REST APIs use a small set of HTTP methods:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Typical use</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td>Read a resource</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">POST</code></td>
+      <td>Create a resource</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PUT</code> / <code class="language-plaintext highlighter-rouge">PATCH</code></td>
+      <td>Update a resource</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">DELETE</code></td>
+      <td>Remove a resource</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>For each request, configure the parts that matter:</p>
+
+<ul>
+  <li><strong>URL</strong> — include path parameters, such as <code class="language-plaintext highlighter-rouge">/users/42</code></li>
+  <li><strong>Query params</strong> — add filters or pagination, such as <code class="language-plaintext highlighter-rouge">?page=2&amp;limit=10</code></li>
+  <li><strong>Headers</strong> — set <code class="language-plaintext highlighter-rouge">Content-Type: application/json</code> for JSON bodies, and <code class="language-plaintext highlighter-rouge">Accept: application/json</code> when needed</li>
+  <li><strong>Body</strong> — use raw JSON for <code class="language-plaintext highlighter-rouge">POST</code> and <code class="language-plaintext highlighter-rouge">PUT</code> requests</li>
+</ul>
+
+<p>Example JSON body for creating a post:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Test post"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Created from Postman"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"userId"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Send the request and confirm the API returns the expected status code and payload shape.</p>
+
+<h2 id="inspect-the-response">Inspect the response</h2>
+
+<p>After each request, check three things:</p>
+
+<ol>
+  <li><strong>Status code</strong> — <code class="language-plaintext highlighter-rouge">200</code>, <code class="language-plaintext highlighter-rouge">201</code>, <code class="language-plaintext highlighter-rouge">204</code>, <code class="language-plaintext highlighter-rouge">400</code>, <code class="language-plaintext highlighter-rouge">401</code>, and <code class="language-plaintext highlighter-rouge">404</code> all mean different things</li>
+  <li><strong>Headers</strong> — look for <code class="language-plaintext highlighter-rouge">Content-Type</code>, rate-limit headers, and auth-related values</li>
+  <li><strong>Body</strong> — verify fields, types, and error messages</li>
+</ol>
+
+<p>Postman shows all of this in the response panel. For JSON responses, use the <strong>Pretty</strong> view to scan the structure quickly.</p>
+
+<p>A healthy test usually answers questions like:</p>
+
+<ul>
+  <li>Did the request succeed?</li>
+  <li>Did the response include the fields I expected?</li>
+  <li>Did the API return a useful error when I sent bad input?</li>
+</ul>
+
+<h2 id="use-environments-and-variables">Use environments and variables</h2>
+
+<p>Hard-coding URLs and tokens in every request gets old fast. Postman environments solve that.</p>
+
+<p>Create an environment with variables such as:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">baseUrl</code> — <code class="language-plaintext highlighter-rouge">https://api.example.com/v1</code></li>
+  <li><code class="language-plaintext highlighter-rouge">accessToken</code> — your bearer token or API key</li>
+</ul>
+
+<p>Then reference them in requests:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{baseUrl}}/users
+</code></pre></div></div>
+
+<p>And in headers:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Authorization: Bearer {{accessToken}}
+</code></pre></div></div>
+
+<p>Switch environments to move between local, staging, and production without rewriting requests. That alone saves a lot of time on real projects.</p>
+
+<h2 id="add-test-scripts">Add test scripts</h2>
+
+<p>Postman can run JavaScript after each response. This turns a manual check into a repeatable assertion.</p>
+
+<p>Example test script:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">pm</span><span class="p">.</span><span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">Status code is 200</span><span class="dl">"</span><span class="p">,</span> <span class="nf">function </span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">pm</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">to</span><span class="p">.</span><span class="nx">have</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">200</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">pm</span><span class="p">.</span><span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">Response is JSON</span><span class="dl">"</span><span class="p">,</span> <span class="nf">function </span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">pm</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">json</span><span class="p">;</span>
+<span class="p">});</span>
+
+<span class="nx">pm</span><span class="p">.</span><span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">Post has an id</span><span class="dl">"</span><span class="p">,</span> <span class="nf">function </span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">json</span> <span class="o">=</span> <span class="nx">pm</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nf">json</span><span class="p">();</span>
+  <span class="nx">pm</span><span class="p">.</span><span class="nf">expect</span><span class="p">(</span><span class="nx">json</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">have</span><span class="p">.</span><span class="nf">property</span><span class="p">(</span><span class="dl">"</span><span class="s2">id</span><span class="dl">"</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>Use the <strong>Test Results</strong> tab to see what passed or failed. Even a few small tests are enough to catch regressions when an endpoint changes.</p>
+
+<h2 id="organize-requests-into-collections">Organize requests into collections</h2>
+
+<p>As your API grows, group related requests into a <strong>Collection</strong>. A good layout might look like:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Users</code>
+    <ul>
+      <li>List users</li>
+      <li>Get user by id</li>
+      <li>Create user</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">Posts</code>
+    <ul>
+      <li>List posts</li>
+      <li>Create post</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Collections make it easier to:</p>
+
+<ul>
+  <li>Run the same set of requests in order</li>
+  <li>Share API examples with your team</li>
+  <li>Export documentation from saved requests</li>
+</ul>
+
+<p>If you are testing auth flows, put login and token refresh requests at the top of the collection so other requests can reuse the token.</p>
+
+<h2 id="a-simple-testing-checklist">A simple testing checklist</h2>
+
+<p>Before you call an endpoint done, run through this list:</p>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Correct HTTP method and URL</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Required headers and auth configured</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Valid request body for create/update operations</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Expected success status code</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Response schema matches the contract</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Error cases return clear status codes and messages</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Variables used for base URL, tokens, and IDs</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Test scripts cover the most important assertions</li>
+</ul>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>Postman is not a replacement for full integration tests in your application, but it is an excellent tool for exploring APIs, validating contracts, and building a shared set of working examples.</p>
+
+<p>Start with one endpoint, add variables for anything repeated, then layer in test scripts as the API stabilizes. That progression keeps testing lightweight while still giving you confidence that your REST API behaves the way you expect.</p>
+</div><p class="read-more">
+        <a href="/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">design</span></div><h2 class="post-title">
+          <a href="/rest-api/design/2026/01/21/writing-rest-apis-that-developers-will-love.html">Writing REST APIs that Developers Will Love</a>
+        </h2><figure class="post-featured-image"><img src="/assets/images/writing-rest-apis-developers-love.png" alt="A REST API design diagram with resource paths, HTTP method chips, and a JSON response panel" loading="eager" decoding="async"></figure><div class="post-meta">
+          <time datetime="2026-01-21T07:00:00-05:00">Jan 21, 2026</time>
+        </div>
+      </header>
+      <div class="post-content"><p>Developers judge an API quickly. The first request either feels obvious or it does not. A URL that makes sense, a response that matches expectations, and an error message that actually helps — those details add up to an API people want to use.</p>
+
+<p>This guide covers practical design choices that make REST APIs easier to learn, harder to misuse, and more pleasant to integrate with.</p>
+
+<h2 id="start-with-resources-not-actions">Start with resources, not actions</h2>
+
+<p>REST APIs work best when URLs represent <strong>nouns</strong> (resources), not verbs (operations).</p>
+
+<p>Good:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET    /users/42
+POST   /users
+PATCH  /users/42
+DELETE /users/42
+</code></pre></div></div>
+
+<p>Avoid:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /getUser
+POST /createUser
+POST /deleteUserById
+</code></pre></div></div>
+
+<p>Use HTTP methods to express intent. <code class="language-plaintext highlighter-rouge">GET</code> reads, <code class="language-plaintext highlighter-rouge">POST</code> creates, <code class="language-plaintext highlighter-rouge">PUT</code> replaces, <code class="language-plaintext highlighter-rouge">PATCH</code> updates partially, and <code class="language-plaintext highlighter-rouge">DELETE</code> removes. When every endpoint is a <code class="language-plaintext highlighter-rouge">POST</code> with a different action name, clients lose the predictability that makes REST worth using.</p>
+
+<p>Nested resources are fine when the relationship is clear:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /users/42/posts
+GET /users/42/posts/7
+</code></pre></div></div>
+
+<p>Keep nesting shallow. If a path grows past two levels, consider flattening:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /posts?user_id=42
+</code></pre></div></div>
+
+<h2 id="use-http-status-codes-consistently">Use HTTP status codes consistently</h2>
+
+<p>Status codes communicate outcome before the client parses the body. Use them consistently across the API:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>When to use</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">200 OK</code></td>
+      <td>Successful read or update with a response body</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">201 Created</code></td>
+      <td>Resource created; include a <code class="language-plaintext highlighter-rouge">Location</code> header when possible</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">204 No Content</code></td>
+      <td>Successful delete or update with no body</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">400 Bad Request</code></td>
+      <td>Invalid input the client can fix</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">401 Unauthorized</code></td>
+      <td>Missing or invalid authentication</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">403 Forbidden</code></td>
+      <td>Authenticated but not allowed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">404 Not Found</code></td>
+      <td>Resource does not exist (or is not visible to this caller)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">409 Conflict</code></td>
+      <td>Duplicate or state conflict</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">422 Unprocessable Entity</code></td>
+      <td>Valid syntax but business rule failure</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">429 Too Many Requests</code></td>
+      <td>Rate limit exceeded</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">500 Internal Server Error</code></td>
+      <td>Unexpected server failure</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Do not return <code class="language-plaintext highlighter-rouge">200 OK</code> with an error payload. Clients that rely on status codes — and most HTTP libraries do — will treat the request as successful. Pick one error shape and one set of status rules, then apply them everywhere.</p>
+
+<h2 id="design-errors-developers-can-act-on">Design errors developers can act on</h2>
+
+<p>A useful error response answers three questions:</p>
+
+<ol>
+  <li>What went wrong?</li>
+  <li>Which field or parameter caused it?</li>
+  <li>What should the client do next?</li>
+</ol>
+
+<p>Example:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"validation_failed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"One or more fields are invalid."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Must be a valid email address."</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Stable <code class="language-plaintext highlighter-rouge">code</code> values matter more than clever messages. Messages can change; codes should not. Document every error code in your API reference so integrators know what to handle programmatically.</p>
+
+<h2 id="keep-request-and-response-shapes-predictable">Keep request and response shapes predictable</h2>
+
+<p>Developers build mental models from patterns. Reuse them.</p>
+
+<ul>
+  <li>Use <strong>snake_case</strong> or <strong>camelCase</strong> consistently — pick one and stick with it across every endpoint</li>
+  <li>Return the same resource representation from <code class="language-plaintext highlighter-rouge">GET</code>, <code class="language-plaintext highlighter-rouge">POST</code>, and <code class="language-plaintext highlighter-rouge">PATCH</code> where possible</li>
+  <li>Include an <code class="language-plaintext highlighter-rouge">id</code> field on every resource</li>
+  <li>Use ISO 8601 for timestamps: <code class="language-plaintext highlighter-rouge">2026-01-21T12:00:00Z</code></li>
+  <li>Represent enums as strings, not opaque integers</li>
+</ul>
+
+<p>For collections, return a consistent wrapper:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"First post"</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Second post"</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"pagination"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"page"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"total"</span><span class="p">:</span><span class="w"> </span><span class="mi">142</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Avoid surprising clients with different field names or nesting on similar endpoints. Consistency reduces integration time more than any single clever shortcut.</p>
+
+<h2 id="support-pagination-filtering-and-sorting">Support pagination, filtering, and sorting</h2>
+
+<p>List endpoints that return unbounded arrays do not scale — for your database or for the client waiting on a multi-megabyte response.</p>
+
+<p>Common query parameters:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /posts?page=2&amp;limit=20
+GET /posts?sort=-created_at
+GET /posts?status=published&amp;author_id=42
+</code></pre></div></div>
+
+<p>Cursor-based pagination works better for large or frequently changing datasets:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /posts?cursor=eyJpZCI6MTIzfQ&amp;limit=20
+</code></pre></div></div>
+
+<p>Document defaults (<code class="language-plaintext highlighter-rouge">limit=20</code>, <code class="language-plaintext highlighter-rouge">sort=created_at</code>) and maximums (<code class="language-plaintext highlighter-rouge">limit</code> capped at 100). Clients should not have to guess whether pagination is offset- or cursor-based.</p>
+
+<h2 id="make-authentication-straightforward">Make authentication straightforward</h2>
+
+<p>Most APIs use bearer tokens, API keys, or OAuth 2.0. Whatever you choose, make the contract obvious:</p>
+
+<ul>
+  <li>Document where credentials go (<code class="language-plaintext highlighter-rouge">Authorization: Bearer …</code> or a named header)</li>
+  <li>Return <code class="language-plaintext highlighter-rouge">401</code> when credentials are missing or invalid</li>
+  <li>Return <code class="language-plaintext highlighter-rouge">403</code> when credentials are valid but insufficient</li>
+  <li>Avoid mixing auth schemes across endpoints without a clear reason</li>
+</ul>
+
+<p>If tokens expire, provide a refresh flow or clear instructions for obtaining a new token. Silent expiry with cryptic <code class="language-plaintext highlighter-rouge">403</code> responses is a common source of support tickets.</p>
+
+<h2 id="version-your-api-deliberately">Version your API deliberately</h2>
+
+<p>APIs change. Versioning gives you room to evolve without breaking existing clients.</p>
+
+<p>Common approaches:</p>
+
+<ul>
+  <li><strong>URL prefix</strong> — <code class="language-plaintext highlighter-rouge">/v1/users</code> (simple, visible, widely understood)</li>
+  <li><strong>Header</strong> — <code class="language-plaintext highlighter-rouge">Accept: application/vnd.myapp.v1+json</code> (clean URLs, harder to discover)</li>
+  <li><strong>Query parameter</strong> — <code class="language-plaintext highlighter-rouge">/users?version=1</code> (works, but easy to forget)</li>
+</ul>
+
+<p>Pick one strategy and apply it consistently. When you ship breaking changes, increment the version and keep the old version running long enough for clients to migrate. Deprecation headers (<code class="language-plaintext highlighter-rouge">Deprecation</code>, <code class="language-plaintext highlighter-rouge">Sunset</code>) give integrators a timeline instead of a surprise.</p>
+
+<h2 id="write-documentation-that-matches-the-api">Write documentation that matches the API</h2>
+
+<p>Reference docs should show real requests and real responses — not abstract field lists alone.</p>
+
+<p>Every endpoint page should include:</p>
+
+<ul>
+  <li>Method and path</li>
+  <li>Required and optional parameters</li>
+  <li>Example request with headers and body</li>
+  <li>Example success response</li>
+  <li>Example error responses</li>
+  <li>Auth requirements</li>
+</ul>
+
+<p>OpenAPI (Swagger) specs are worth the investment. They power interactive docs, client generation, and contract tests. Keep the spec close to the code or generate it from source so it does not drift.</p>
+
+<h2 id="provide-working-examples">Provide working examples</h2>
+
+<p>Developers learn fastest by sending a request and getting a response. Lower the barrier:</p>
+
+<ul>
+  <li>Publish a <strong>Postman collection</strong> or equivalent for your API</li>
+  <li>Include curl examples in documentation</li>
+  <li>Offer a <strong>sandbox environment</strong> with test credentials</li>
+  <li>Seed sandbox data so list endpoints return meaningful results on the first call</li>
+</ul>
+
+<p>An API with a five-minute quickstart beats one that requires reading thirty pages before the first successful request.</p>
+
+<h2 id="design-for-backwards-compatibility">Design for backwards compatibility</h2>
+
+<p>Breaking changes erode trust. Prefer additive changes:</p>
+
+<ul>
+  <li>Add new optional fields instead of renaming existing ones</li>
+  <li>Add new endpoints instead of changing semantics on old ones</li>
+  <li>Default new behavior off or preserve old behavior when possible</li>
+</ul>
+
+<p>When a change is unavoidable, communicate early:</p>
+
+<ol>
+  <li>Mark the old behavior as deprecated</li>
+  <li>Document the replacement</li>
+  <li>Set a sunset date</li>
+  <li>Monitor usage of deprecated endpoints before removal</li>
+</ol>
+
+<p>Clients forgive evolution. They do not forgive silent breakage.</p>
+
+<h2 id="a-practical-design-checklist">A practical design checklist</h2>
+
+<p>Before shipping an endpoint, run through this list:</p>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />URL represents a resource, not an action</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />HTTP method matches the operation</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Status codes used consistently</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Error responses include a stable code and actionable details</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Request and response field naming matches the rest of the API</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />List endpoints support pagination</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Auth requirements are documented and enforced consistently</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Examples in docs match actual behavior</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Breaking changes are versioned or deprecated with notice</li>
+</ul>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>Developers do not love APIs because they are RESTful on paper. They love APIs that are <strong>predictable</strong>, <strong>consistent</strong>, and <strong>easy to debug</strong> when something goes wrong.</p>
+
+<p>Start with clear resource URLs and honest status codes. Add structured errors, stable pagination, and documentation with real examples. Treat backwards compatibility as a feature, not an afterthought. Those choices compound — each good decision makes the next integration faster and each bad one becomes someone else’s workaround.</p>
+
+<p>Build the API you would want to integrate with on a Friday afternoon. That is the bar worth hitting.</p>
+</div><p class="read-more">
+        <a href="/rest-api/design/2026/01/21/writing-rest-apis-that-developers-will-love.html">Read more &rarr;</a>
+      </p></article></div>
 </section>
     </div>
   </main><footer class="site-footer h-card">
@@ -95,15 +706,9 @@
 
       <div class="footer-links">
         <h3 class="footer-label">Connect</h3>
-        <ul class="footer-link-list"><li><a class="u-email" href="mailto:hello@atw-internals.com">hello@atw-internals.com</a></li><li><a href="https://github.com/headzoo" rel="me">GitHub</a></li><li><a href="/feed.xml">RSS Feed</a></li>
+        <ul class="footer-link-list"><li><a class="u-email" href="mailto:hello@atw-internals.com">hello@atw-internals.com</a></li><li><a href="/feed.xml">RSS Feed</a></li>
           <li><a href="/about/">About</a></li>
         </ul>
-      </div>
-
-      <div class="footer-meta">
-        <h3 class="footer-label">Published by</h3>
-        <p class="p-name">Sean</p>
-        <p class="footer-copy">&copy; 2026 Application-to-Web Internals</p>
       </div>
     </div>
   </div>

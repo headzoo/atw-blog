@@ -17,24 +17,9 @@
           {%- if site.email -%}
           <li><a class="u-email" href="mailto:{{ site.email }}">{{ site.email }}</a></li>
           {%- endif -%}
-          {%- if site.github_username -%}
-          <li><a href="https://github.com/{{ site.github_username }}" rel="me">GitHub</a></li>
-          {%- endif -%}
           <li><a href="{{ '/feed.xml' | relative_url }}">RSS Feed</a></li>
           <li><a href="{{ '/about/' | relative_url }}">About</a></li>
         </ul>
-      </div>
-
-      <div class="footer-meta">
-        <h3 class="footer-label">Published by</h3>
-        <p class="p-name">
-          {%- if site.author -%}
-          {{ site.author | escape }}
-          {%- else -%}
-          {{ site.title | escape }}
-          {%- endif -%}
-        </p>
-        <p class="footer-copy">&copy; {{ 'now' | date: "%Y" }} {{ site.title | escape }}</p>
       </div>
     </div>
   </div>

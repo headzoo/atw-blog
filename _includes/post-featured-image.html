@@ -1,0 +1,21 @@
+{%- if post.image -%}
+{%- assign image_src = post.image -%}
+{%- unless image_src contains '://' -%}
+{%- assign image_src = image_src | relative_url -%}
+{%- endunless -%}
+{%- assign image_alt = post.image_alt | default: post.title | escape -%}
+{%- if linked -%}
+{%- assign image_loading = 'lazy' -%}
+{%- else -%}
+{%- assign image_loading = 'eager' -%}
+{%- endif -%}
+<figure class="post-featured-image">
+  {%- if linked -%}
+  <a href="{{ post.url | relative_url }}" aria-label="{{ post.title | escape }}">
+    {%- endif -%}
+    <img src="{{ image_src }}" alt="{{ image_alt }}" loading="{{ image_loading }}" decoding="async">
+    {%- if linked -%}
+  </a>
+  {%- endif -%}
+</figure>
+{%- endif -%}

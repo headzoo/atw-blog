@@ -26,11 +26,13 @@ baseurl: ""
 url: "http://127.0.0.1:4000"
 author: Sean
 github_username: headzoo
+home_preview_word_limit: 400
 
 # Build settings
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-sitemap
 
 # Exclude from processing.
 # The following items will not be processed, by default.

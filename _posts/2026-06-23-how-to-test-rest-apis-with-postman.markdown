@@ -3,6 +3,8 @@ layout: post
 title: "How to test REST APIs with Postman"
 date: 2026-06-23 21:00:00 +0000
 categories: rest-api testing
+image: /assets/images/how-to-test-rest-apis-with-postman.png
+image_alt: "A REST API testing workspace with request, response, and test result panels"
 ---
 
 Postman is one of the fastest ways to explore and validate a REST API without writing a full client. You can send requests, inspect responses, and repeat the same checks across environments — all from a single workspace.

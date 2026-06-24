@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "bundle exec jekyll serve --livereload -P 4001",
-    "build": "bundle exec jekyll build"
+    "build": "JEKYLL_ENV=production bundle exec jekyll build --config _config.yml,_config_production.yml"
   },
   "keywords": [],
   "author": "",
