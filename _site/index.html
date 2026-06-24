@@ -416,6 +416,372 @@
 </div><p class="read-more">
         <a href="/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html">Read more &rarr;</a>
       </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">typescript</span><span class="post-category">clients</span></div><h2 class="post-title">
+          <a href="/rest-api/typescript/clients/2026/06/10/building-type-safe-rest-api-clients-in-typescript.html">Building Type-Safe REST API Clients in TypeScript</a>
+        </h2><figure class="post-featured-image"><a href="/rest-api/typescript/clients/2026/06/10/building-type-safe-rest-api-clients-in-typescript.html" aria-label="Building Type-Safe REST API Clients in TypeScript"><img src="/assets/images/building-type-safe-rest-api-clients-in-typescript.png" alt="TypeScript interfaces connected to REST API request and response objects in a client module" loading="lazy" decoding="async"></a></figure><div class="post-meta">
+          <time datetime="2026-06-10T11:35:00-04:00">Jun 10, 2026</time>
+        </div>
+      </header>
+      <div class="post-content"><p>TypeScript can make REST API clients easier to use and safer to refactor, but only if the types describe the real API contract. A typed wrapper around <code class="language-plaintext highlighter-rouge">fetch</code> should prevent common mistakes without hiding how HTTP works.</p>
+
+<p>The goal is not to build a giant SDK on day one. Start with small, typed functions for the endpoints your application uses most.</p>
+
+<h2 id="define-response-types-at-the-boundary">Define response types at the boundary</h2>
+
+<p>Begin with the shapes your client expects:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">type</span> <span class="nx">User</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">id</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">email</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">displayName</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">createdAt</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kd">type</span> <span class="nx">ApiError</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">error</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">code</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+    <span class="nl">message</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+    <span class="nl">details</span><span class="p">?:</span> <span class="nb">Array</span><span class="o">&lt;</span><span class="p">{</span>
+      <span class="nx">field</span><span class="p">?:</span> <span class="kr">string</span><span class="p">;</span>
+      <span class="nl">message</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+    <span class="p">}</span><span class="o">&gt;</span><span class="p">;</span>
+  <span class="p">};</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>These types are a contract for your application code. Keep them close to the client module or generate them from OpenAPI if your API publishes a reliable spec.</p>
+
+<h2 id="wrap-fetch-once">Wrap fetch once</h2>
+
+<p>A small request helper keeps headers, base URLs, JSON parsing, and error handling consistent.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">type</span> <span class="nx">RequestOptions</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">method</span><span class="p">?:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">path</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">token</span><span class="p">?:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">body</span><span class="p">?:</span> <span class="nx">unknown</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">async</span> <span class="kd">function</span> <span class="nf">request</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">options</span><span class="p">:</span> <span class="nx">RequestOptions</span><span class="p">):</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">response</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">fetch</span><span class="p">(</span><span class="s2">`</span><span class="p">${</span><span class="nx">API_BASE_URL</span><span class="p">}${</span><span class="nx">options</span><span class="p">.</span><span class="nx">path</span><span class="p">}</span><span class="s2">`</span><span class="p">,</span> <span class="p">{</span>
+    <span class="na">method</span><span class="p">:</span> <span class="nx">options</span><span class="p">.</span><span class="nx">method</span> <span class="o">??</span> <span class="dl">"</span><span class="s2">GET</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">headers</span><span class="p">:</span> <span class="p">{</span>
+      <span class="dl">"</span><span class="s2">Accept</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">application/json</span><span class="dl">"</span><span class="p">,</span>
+      <span class="dl">"</span><span class="s2">Content-Type</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">application/json</span><span class="dl">"</span><span class="p">,</span>
+      <span class="p">...(</span><span class="nx">options</span><span class="p">.</span><span class="nx">token</span> <span class="p">?</span> <span class="p">{</span> <span class="dl">"</span><span class="s2">Authorization</span><span class="dl">"</span><span class="p">:</span> <span class="s2">`Bearer </span><span class="p">${</span><span class="nx">options</span><span class="p">.</span><span class="nx">token</span><span class="p">}</span><span class="s2">`</span> <span class="p">}</span> <span class="p">:</span> <span class="p">{})</span>
+    <span class="p">},</span>
+    <span class="na">body</span><span class="p">:</span> <span class="nx">options</span><span class="p">.</span><span class="nx">body</span> <span class="p">?</span> <span class="nx">JSON</span><span class="p">.</span><span class="nf">stringify</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">body</span><span class="p">)</span> <span class="p">:</span> <span class="kc">undefined</span>
+  <span class="p">});</span>
+
+  <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">response</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="k">await</span> <span class="nx">response</span><span class="p">.</span><span class="nf">json</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="nx">response</span><span class="p">.</span><span class="nf">json</span><span class="p">()</span> <span class="kd">as </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The generic <code class="language-plaintext highlighter-rouge">T</code> gives callers a typed result. The helper still needs runtime care because TypeScript does not validate JSON automatically.</p>
+
+<h2 id="add-endpoint-functions">Add endpoint functions</h2>
+
+<p>Endpoint functions give the rest of your app a stable API.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">type</span> <span class="nx">CreateUserInput</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">email</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+  <span class="nl">displayName</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">export</span> <span class="kd">function</span> <span class="nf">getUser</span><span class="p">(</span><span class="nx">id</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span> <span class="nx">token</span><span class="p">:</span> <span class="kr">string</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">request</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;</span><span class="p">({</span>
+    <span class="na">path</span><span class="p">:</span> <span class="s2">`/users/</span><span class="p">${</span><span class="nf">encodeURIComponent</span><span class="p">(</span><span class="nx">id</span><span class="p">)}</span><span class="s2">`</span><span class="p">,</span>
+    <span class="nx">token</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="kd">function</span> <span class="nf">createUser</span><span class="p">(</span><span class="nx">input</span><span class="p">:</span> <span class="nx">CreateUserInput</span><span class="p">,</span> <span class="nx">token</span><span class="p">:</span> <span class="kr">string</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">request</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;</span><span class="p">({</span>
+    <span class="na">method</span><span class="p">:</span> <span class="dl">"</span><span class="s2">POST</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">path</span><span class="p">:</span> <span class="dl">"</span><span class="s2">/users</span><span class="dl">"</span><span class="p">,</span>
+    <span class="nx">token</span><span class="p">,</span>
+    <span class="na">body</span><span class="p">:</span> <span class="nx">input</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Now application code calls <code class="language-plaintext highlighter-rouge">getUser()</code> instead of constructing URLs and headers everywhere.</p>
+
+<h2 id="model-pagination-explicitly">Model pagination explicitly</h2>
+
+<p>If the API wraps list responses, type that wrapper once:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">type</span> <span class="nx">Page</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">data</span><span class="p">:</span> <span class="nx">T</span><span class="p">[];</span>
+  <span class="nl">pagination</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">limit</span><span class="p">:</span> <span class="kr">number</span><span class="p">;</span>
+    <span class="nl">nextCursor</span><span class="p">?:</span> <span class="kr">string</span><span class="p">;</span>
+    <span class="nl">hasMore</span><span class="p">:</span> <span class="nx">boolean</span><span class="p">;</span>
+  <span class="p">};</span>
+<span class="p">};</span>
+
+<span class="kd">type</span> <span class="nx">ListUsersParams</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">limit</span><span class="p">?:</span> <span class="kr">number</span><span class="p">;</span>
+  <span class="nl">cursor</span><span class="p">?:</span> <span class="kr">string</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>Build query strings from typed params:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">listUsers</span><span class="p">(</span><span class="nx">params</span><span class="p">:</span> <span class="nx">ListUsersParams</span><span class="p">,</span> <span class="nx">token</span><span class="p">:</span> <span class="kr">string</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">search</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">URLSearchParams</span><span class="p">();</span>
+
+  <span class="k">if </span><span class="p">(</span><span class="nx">params</span><span class="p">.</span><span class="nx">limit</span><span class="p">)</span> <span class="nx">search</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="dl">"</span><span class="s2">limit</span><span class="dl">"</span><span class="p">,</span> <span class="nc">String</span><span class="p">(</span><span class="nx">params</span><span class="p">.</span><span class="nx">limit</span><span class="p">));</span>
+  <span class="k">if </span><span class="p">(</span><span class="nx">params</span><span class="p">.</span><span class="nx">cursor</span><span class="p">)</span> <span class="nx">search</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="dl">"</span><span class="s2">cursor</span><span class="dl">"</span><span class="p">,</span> <span class="nx">params</span><span class="p">.</span><span class="nx">cursor</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="nx">request</span><span class="o">&lt;</span><span class="nx">Page</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;&gt;</span><span class="p">({</span>
+    <span class="na">path</span><span class="p">:</span> <span class="s2">`/users?</span><span class="p">${</span><span class="nx">search</span><span class="p">.</span><span class="nf">toString</span><span class="p">()}</span><span class="s2">`</span><span class="p">,</span>
+    <span class="nx">token</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This prevents misspelled parameters from spreading through the codebase.</p>
+
+<h2 id="treat-errors-as-part-of-the-contract">Treat errors as part of the contract</h2>
+
+<p>Do not leave errors as <code class="language-plaintext highlighter-rouge">any</code>. Give them a shape:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">ApiClientError</span> <span class="kd">extends</span> <span class="nc">Error</span> <span class="p">{</span>
+  <span class="nf">constructor</span><span class="p">(</span>
+    <span class="nx">message</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="k">public</span> <span class="nx">status</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span>
+    <span class="k">public</span> <span class="nx">code</span><span class="p">?:</span> <span class="kr">string</span><span class="p">,</span>
+    <span class="k">public</span> <span class="nx">details</span><span class="p">?:</span> <span class="nx">ApiError</span><span class="p">[</span><span class="dl">"</span><span class="s2">error</span><span class="dl">"</span><span class="p">][</span><span class="dl">"</span><span class="s2">details</span><span class="dl">"</span><span class="p">]</span>
+  <span class="p">)</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Then throw a typed error from the request helper. UI and service code can handle <code class="language-plaintext highlighter-rouge">validation_failed</code>, <code class="language-plaintext highlighter-rouge">token_expired</code>, or <code class="language-plaintext highlighter-rouge">rate_limit_exceeded</code> without parsing unknown objects in every caller.</p>
+
+<h2 id="validate-runtime-data-when-it-matters">Validate runtime data when it matters</h2>
+
+<p>Type assertions do not prove the server returned the right shape:</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">return</span> <span class="nx">response</span><span class="p">.</span><span class="nf">json</span><span class="p">()</span> <span class="kd">as </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">User</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>That line tells TypeScript what you expect. It does not validate the JSON.</p>
+
+<p>For critical boundaries, add runtime validation with your project’s existing validation library or generated client tooling. If the project does not already use a validator, weigh the dependency carefully instead of adding one casually.</p>
+
+<h2 id="generate-types-when-the-spec-is-trustworthy">Generate types when the spec is trustworthy</h2>
+
+<p>If your API has a maintained OpenAPI spec, generated types can reduce manual drift.</p>
+
+<p>Generation works best when:</p>
+
+<ul>
+  <li>The spec is part of CI</li>
+  <li>Examples match real responses</li>
+  <li>Breaking changes are reviewed</li>
+  <li>Generated files are easy to update</li>
+  <li>Custom client code stays thin</li>
+</ul>
+
+<p>Generated clients are not magic. They are only as accurate as the contract they come from.</p>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>A type-safe REST client should make correct calls easy and incorrect calls hard. Start with typed endpoint functions, one request helper, explicit pagination types, and a real error model.</p>
+
+<p>As the API grows, consider OpenAPI-generated types or runtime validation for the highest-risk boundaries. Keep the wrapper small enough that developers still understand the HTTP request being made.</p>
+</div><p class="read-more">
+        <a href="/rest-api/typescript/clients/2026/06/10/building-type-safe-rest-api-clients-in-typescript.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">testing</span><span class="post-category">contracts</span></div><h2 class="post-title">
+          <a href="/rest-api/testing/contracts/2026/05/04/contract-testing-for-rest-apis.html">Contract Testing for REST APIs</a>
+        </h2><figure class="post-featured-image"><a href="/rest-api/testing/contracts/2026/05/04/contract-testing-for-rest-apis.html" aria-label="Contract Testing for REST APIs"><img src="/assets/images/contract-testing-for-rest-apis.png" alt="A REST API contract connecting provider tests, consumer expectations, and an OpenAPI document" loading="lazy" decoding="async"></a></figure><div class="post-meta">
+          <time datetime="2026-05-04T04:55:00-04:00">May 4, 2026</time>
+        </div>
+      </header>
+      <div class="post-content"><p>REST APIs fail when providers and consumers disagree about the contract. Maybe a field is renamed, a status code changes, or an error response stops matching the documentation. Unit tests can pass while real clients break.</p>
+
+<p>Contract testing focuses on the boundary between API provider and API consumer. It asks: do both sides still agree on requests, responses, and behavior?</p>
+
+<h2 id="what-is-an-api-contract">What is an API contract?</h2>
+
+<p>An API contract describes what clients can rely on.</p>
+
+<p>It includes:</p>
+
+<ul>
+  <li>Paths and methods</li>
+  <li>Request headers, query parameters, and bodies</li>
+  <li>Response status codes</li>
+  <li>Response schemas</li>
+  <li>Error formats</li>
+  <li>Authentication requirements</li>
+  <li>Pagination and rate-limit behavior</li>
+</ul>
+
+<p>An OpenAPI document is a common way to publish that contract, but the contract also includes examples, docs, and behavior that clients depend on.</p>
+
+<h2 id="schema-validation-is-the-first-layer">Schema validation is the first layer</h2>
+
+<p>The simplest contract test checks that responses match a schema.</p>
+
+<p>For example, a <code class="language-plaintext highlighter-rouge">GET /users/{id}</code> response might require:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_123"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"avery@example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-05-04T08:55:00Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>A test can verify:</p>
+
+<ul>
+  <li>Required fields are present</li>
+  <li>Field types are correct</li>
+  <li>Unknown breaking changes are caught</li>
+  <li>Status codes match the spec</li>
+</ul>
+
+<p>This is useful, but it is not the whole story. A valid schema can still represent the wrong behavior.</p>
+
+<h2 id="provider-contract-tests">Provider contract tests</h2>
+
+<p>Provider tests run against the API implementation and compare actual responses to the contract.</p>
+
+<p>They answer questions like:</p>
+
+<ul>
+  <li>Does every documented endpoint exist?</li>
+  <li>Does the API return documented status codes?</li>
+  <li>Do response bodies match the OpenAPI schema?</li>
+  <li>Do error responses use the shared error shape?</li>
+</ul>
+
+<p>These tests are a good fit for CI because they catch drift between code and docs before release.</p>
+
+<h2 id="consumer-contract-tests">Consumer contract tests</h2>
+
+<p>Consumer contract tests start from what a client actually needs.</p>
+
+<p>A frontend, mobile app, or partner integration defines expectations such as:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>When I request GET /users/me with a valid token,
+I need a 200 response with id, email, and display_name.
+</code></pre></div></div>
+
+<p>The provider verifies that it can satisfy those expectations. This is especially useful when many clients depend on the same API and not every client uses every field.</p>
+
+<h2 id="contract-tests-are-not-end-to-end-tests">Contract tests are not end-to-end tests</h2>
+
+<p>End-to-end tests exercise a full user workflow. Contract tests focus on the API boundary.</p>
+
+<p>Contract tests should be:</p>
+
+<ul>
+  <li>Faster than full E2E tests</li>
+  <li>Focused on request and response behavior</li>
+  <li>Stable enough to run in CI</li>
+  <li>Clear when a breaking change is introduced</li>
+</ul>
+
+<p>They do not replace integration tests, database tests, or browser tests. They reduce the chance that a client breaks because the API shape changed unexpectedly.</p>
+
+<h2 id="use-examples-as-test-fixtures">Use examples as test fixtures</h2>
+
+<p>Good API docs include real examples. Those examples can become fixtures.</p>
+
+<p>Example request:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">POST /users
+Content-Type: application/json
+</span></code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"avery@example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Avery"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Expected response:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_123"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"avery@example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Avery"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>When examples are executable, documentation drift becomes easier to catch.</p>
+
+<h2 id="watch-for-backwards-compatibility">Watch for backwards compatibility</h2>
+
+<p>Contract tests should protect existing clients from breaking changes.</p>
+
+<p>Risky changes include:</p>
+
+<ul>
+  <li>Removing fields</li>
+  <li>Renaming fields</li>
+  <li>Changing types</li>
+  <li>Changing enum values</li>
+  <li>Changing pagination wrappers</li>
+  <li>Changing error response shape</li>
+  <li>Returning different status codes for the same condition</li>
+</ul>
+
+<p>Additive changes are usually safer. A new optional response field should not break well-built clients, but strict clients may still need attention.</p>
+
+<h2 id="keep-test-data-predictable">Keep test data predictable</h2>
+
+<p>Contract tests need stable data. Use seeded fixtures, factories, or isolated test tenants.</p>
+
+<p>Avoid tests that depend on:</p>
+
+<ul>
+  <li>Production data</li>
+  <li>The current date without control</li>
+  <li>Test order</li>
+  <li>External services that are not part of the contract</li>
+  <li>Random ids that are asserted exactly</li>
+</ul>
+
+<p>Predictable data makes contract failures meaningful instead of flaky.</p>
+
+<h2 id="start-small">Start small</h2>
+
+<p>You do not need to contract-test every endpoint on day one.</p>
+
+<p>Start with:</p>
+
+<ol>
+  <li>Authentication endpoints</li>
+  <li>The most-used read endpoints</li>
+  <li>Critical create/update flows</li>
+  <li>Shared error response formats</li>
+  <li>Pagination wrappers</li>
+</ol>
+
+<p>Add more coverage when endpoints become public, heavily used, or risky to change.</p>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>Contract testing keeps API providers and consumers honest. It turns the API agreement into something that can fail in CI instead of surprising users after deployment.</p>
+
+<p>Begin with OpenAPI validation or executable examples, then add consumer expectations for the clients that matter most. The payoff is confidence that your REST API still says what clients expect it to say.</p>
+</div><p class="read-more">
+        <a href="/rest-api/testing/contracts/2026/05/04/contract-testing-for-rest-apis.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
       <header class="post-header"><div class="post-categories"><span class="post-category">javascript</span><span class="post-category">typescript</span><span class="post-category">migration</span></div><h2 class="post-title">
           <a href="/javascript/typescript/migration/2026/04/19/migrating-from-javascript-to-typescript.html">Migrating from JavaScript to Typescript</a>
         </h2><figure class="post-featured-image"><a href="/javascript/typescript/migration/2026/04/19/migrating-from-javascript-to-typescript.html" aria-label="Migrating from JavaScript to Typescript"><img src="/assets/images/migrating-from-javascript-to-typescript.png" alt="JavaScript code transitioning into TypeScript with type annotations and safer interfaces" loading="lazy" decoding="async"></a></figure><div class="post-meta">
@@ -601,6 +967,372 @@
 <p>Done well, the migration feels invisible to users — same runtime behavior, fewer surprises for developers. Start with one module this week, ship it, and expand from there.</p>
 </div><p class="read-more">
         <a href="/javascript/typescript/migration/2026/04/19/migrating-from-javascript-to-typescript.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">testing</span><span class="post-category">cli</span></div><h2 class="post-title">
+          <a href="/rest-api/testing/cli/2026/03/12/testing-rest-apis-from-the-command-line.html">Testing REST APIs from the Command Line</a>
+        </h2><figure class="post-featured-image"><a href="/rest-api/testing/cli/2026/03/12/testing-rest-apis-from-the-command-line.html" aria-label="Testing REST APIs from the Command Line"><img src="/assets/images/testing-rest-apis-from-the-command-line.png" alt="A terminal window sending REST API requests with curl and showing JSON response checks" loading="lazy" decoding="async"></a></figure><div class="post-meta">
+          <time datetime="2026-03-12T15:25:00-04:00">Mar 12, 2026</time>
+        </div>
+      </header>
+      <div class="post-content"><p>You do not need a full API client to test every endpoint. The command line is fast, scriptable, and available almost everywhere. For quick checks, CI smoke tests, and debugging from a server, tools like <code class="language-plaintext highlighter-rouge">curl</code>, <code class="language-plaintext highlighter-rouge">jq</code>, and HTTPie are hard to beat.</p>
+
+<p>This guide focuses on practical REST API testing from a terminal.</p>
+
+<h2 id="start-with-curl">Start with curl</h2>
+
+<p>The simplest request is a <code class="language-plaintext highlighter-rouge">GET</code>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl https://api.example.com/health
+</code></pre></div></div>
+
+<p>Add <code class="language-plaintext highlighter-rouge">-i</code> when you want response headers:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-i</span> https://api.example.com/health
+</code></pre></div></div>
+
+<p>For JSON APIs, include an <code class="language-plaintext highlighter-rouge">Accept</code> header:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-i</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Accept: application/json"</span> <span class="se">\</span>
+  https://api.example.com/users/123
+</code></pre></div></div>
+
+<p>Headers often explain more than the body: content type, cache policy, rate limits, request ids, and auth challenges all live there.</p>
+
+<h2 id="send-json-bodies">Send JSON bodies</h2>
+
+<p>For <code class="language-plaintext highlighter-rouge">POST</code>, <code class="language-plaintext highlighter-rouge">PUT</code>, and <code class="language-plaintext highlighter-rouge">PATCH</code>, send JSON with <code class="language-plaintext highlighter-rouge">-d</code> and a content type:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-i</span> <span class="se">\</span>
+  <span class="nt">-X</span> POST <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Accept: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{"email":"avery@example.com","name":"Avery"}'</span> <span class="se">\</span>
+  https://api.example.com/users
+</code></pre></div></div>
+
+<p>When the body is larger, put it in a file:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-i</span> <span class="se">\</span>
+  <span class="nt">-X</span> POST <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> @create-user.json <span class="se">\</span>
+  https://api.example.com/users
+</code></pre></div></div>
+
+<p>Files make requests easier to review and reuse.</p>
+
+<h2 id="add-authentication">Add authentication</h2>
+
+<p>Bearer tokens:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-i</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer </span><span class="nv">$ACCESS_TOKEN</span><span class="s2">"</span> <span class="se">\</span>
+  https://api.example.com/users/me
+</code></pre></div></div>
+
+<p>API keys:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-i</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"X-API-Key: </span><span class="nv">$API_KEY</span><span class="s2">"</span> <span class="se">\</span>
+  https://api.example.com/reports
+</code></pre></div></div>
+
+<p>Use environment variables for local testing, but avoid printing secrets in shared logs or shell history.</p>
+
+<h2 id="format-json-with-jq">Format JSON with jq</h2>
+
+<p><code class="language-plaintext highlighter-rouge">jq</code> makes JSON responses readable and testable.</p>
+
+<p>Pretty-print:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> https://api.example.com/users/123 | jq <span class="nb">.</span>
+</code></pre></div></div>
+
+<p>Extract a field:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> https://api.example.com/users/123 | jq <span class="nt">-r</span> <span class="s1">'.email'</span>
+</code></pre></div></div>
+
+<p>Check a value:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> https://api.example.com/users/123 | jq <span class="nt">-e</span> <span class="s1">'.id == "usr_123"'</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">-e</code> flag makes <code class="language-plaintext highlighter-rouge">jq</code> exit with success or failure, which is useful in scripts and CI.</p>
+
+<h2 id="capture-status-codes">Capture status codes</h2>
+
+<p>Sometimes you need the HTTP status code separately from the body:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="nt">-o</span> response.json <span class="nt">-w</span> <span class="s2">"%{http_code}</span><span class="se">\n</span><span class="s2">"</span> <span class="se">\</span>
+  https://api.example.com/users/123
+</code></pre></div></div>
+
+<p>That writes the body to <code class="language-plaintext highlighter-rouge">response.json</code> and prints the status code.</p>
+
+<p>A shell test can fail on unexpected status:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">status</span><span class="o">=</span><span class="si">$(</span>curl <span class="nt">-s</span> <span class="nt">-o</span> response.json <span class="nt">-w</span> <span class="s2">"%{http_code}"</span> https://api.example.com/health<span class="si">)</span>
+<span class="nb">test</span> <span class="s2">"</span><span class="nv">$status</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"200"</span>
+</code></pre></div></div>
+
+<p>Keep scripts small and obvious. If a test grows complex, it may belong in a real test framework.</p>
+
+<h2 id="use-httpie-for-readable-commands">Use HTTPie for readable commands</h2>
+
+<p>HTTPie provides a friendlier syntax for many manual tests:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http GET https://api.example.com/users/123 <span class="se">\</span>
+  Authorization:<span class="s2">"Bearer </span><span class="nv">$ACCESS_TOKEN</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<p>Posting JSON:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http POST https://api.example.com/users <span class="se">\</span>
+  <span class="nv">email</span><span class="o">=</span>avery@example.com <span class="se">\</span>
+  <span class="nv">name</span><span class="o">=</span>Avery
+</code></pre></div></div>
+
+<p>HTTPie is especially nice for exploratory testing. <code class="language-plaintext highlighter-rouge">curl</code> is still more universal for scripts because it is installed in more environments.</p>
+
+<h2 id="test-error-cases">Test error cases</h2>
+
+<p>Do not only test the happy path. From the command line, it is easy to send bad input:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-i</span> <span class="se">\</span>
+  <span class="nt">-X</span> POST <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{"email":"not-an-email"}'</span> <span class="se">\</span>
+  https://api.example.com/users
+</code></pre></div></div>
+
+<p>Check that the API returns:</p>
+
+<ul>
+  <li>A useful <code class="language-plaintext highlighter-rouge">4xx</code> status</li>
+  <li>A stable error code</li>
+  <li>Field-level validation details</li>
+  <li>No stack traces or internal secrets</li>
+</ul>
+
+<p>These checks catch many API quality issues early.</p>
+
+<h2 id="build-a-small-smoke-test">Build a small smoke test</h2>
+
+<p>A simple smoke test might verify health, auth, and one read endpoint:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env bash</span>
+<span class="nb">set</span> <span class="nt">-euo</span> pipefail
+
+<span class="nv">base_url</span><span class="o">=</span><span class="s2">"</span><span class="k">${</span><span class="nv">BASE_URL</span><span class="k">:-</span><span class="nv">https</span>://api.example.com<span class="k">}</span><span class="s2">"</span>
+
+<span class="nv">status</span><span class="o">=</span><span class="si">$(</span>curl <span class="nt">-s</span> <span class="nt">-o</span> /tmp/health.json <span class="nt">-w</span> <span class="s2">"%{http_code}"</span> <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/health"</span><span class="si">)</span>
+<span class="nb">test</span> <span class="s2">"</span><span class="nv">$status</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"200"</span>
+
+curl <span class="nt">-s</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Authorization: Bearer </span><span class="nv">$ACCESS_TOKEN</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="s2">"</span><span class="nv">$base_url</span><span class="s2">/users/me"</span> | jq <span class="nt">-e</span> <span class="s1">'.id and .email'</span> <span class="o">&gt;</span> /dev/null
+</code></pre></div></div>
+
+<p>This is not a full test suite, but it is a useful deployment check.</p>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>Command-line API testing is fast because it removes ceremony. You can send a request, inspect headers, pipe JSON into checks, and save the command in documentation or CI.</p>
+
+<p>Use <code class="language-plaintext highlighter-rouge">curl</code> for portability, <code class="language-plaintext highlighter-rouge">jq</code> for JSON assertions, and HTTPie when readability matters. Together, they cover a surprising amount of day-to-day REST API testing.</p>
+</div><p class="read-more">
+        <a href="/rest-api/testing/cli/2026/03/12/testing-rest-apis-from-the-command-line.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">http</span><span class="post-category">caching</span></div><h2 class="post-title">
+          <a href="/rest-api/http/caching/2026/02/07/http-caching-for-rest-apis.html">HTTP Caching for REST APIs</a>
+        </h2><figure class="post-featured-image"><a href="/rest-api/http/caching/2026/02/07/http-caching-for-rest-apis.html" aria-label="HTTP Caching for REST APIs"><img src="/assets/images/http-caching-for-rest-apis.png" alt="A REST API response flowing through browser, CDN, and origin cache layers with ETag and Cache-Control headers" loading="lazy" decoding="async"></a></figure><div class="post-meta">
+          <time datetime="2026-02-07T05:40:00-05:00">Feb 7, 2026</time>
+        </div>
+      </header>
+      <div class="post-content"><p>Caching is one of the most effective ways to make REST APIs faster, but it is also easy to get wrong. A stale public profile is annoying. A stale billing response is a serious bug.</p>
+
+<p>HTTP already gives APIs a useful caching vocabulary. The trick is choosing the right headers for each kind of response.</p>
+
+<h2 id="start-with-cache-control">Start with Cache-Control</h2>
+
+<p><code class="language-plaintext highlighter-rouge">Cache-Control</code> tells browsers, proxies, and CDNs how a response may be cached.</p>
+
+<p>Example:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Cache-Control: public, max-age=300
+</span></code></pre></div></div>
+
+<p>This means the response may be stored by shared caches and reused for 300 seconds.</p>
+
+<p>Common directives:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Directive</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">public</code></td>
+      <td>Shared caches may store the response</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">private</code></td>
+      <td>Only the end user’s browser may store it</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">no-store</code></td>
+      <td>Do not store the response at all</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">no-cache</code></td>
+      <td>Store it, but revalidate before reuse</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">max-age=60</code></td>
+      <td>Fresh for 60 seconds</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">s-maxage=300</code></td>
+      <td>Fresh for shared caches for 300 seconds</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Use <code class="language-plaintext highlighter-rouge">no-store</code> for sensitive responses such as tokens, account secrets, or payment details.</p>
+
+<h2 id="cache-public-stable-reads">Cache public, stable reads</h2>
+
+<p>Good candidates for caching:</p>
+
+<ul>
+  <li>Public documentation metadata</li>
+  <li>Product catalogs</li>
+  <li>Feature flag definitions that change slowly</li>
+  <li>Public user profiles</li>
+  <li>Static lookup tables</li>
+</ul>
+
+<p>Example:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /countries
+Cache-Control: public, max-age=86400
+</span></code></pre></div></div>
+
+<p>If the data changes rarely, a long cache lifetime can remove a lot of repeated traffic.</p>
+
+<h2 id="keep-personalized-responses-private">Keep personalized responses private</h2>
+
+<p>Responses tied to one user should not be stored by shared caches unless you are very sure the cache key includes the user identity.</p>
+
+<p>Safer default:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Cache-Control: private, max-age=60
+</span></code></pre></div></div>
+
+<p>For highly sensitive data:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Cache-Control: no-store
+</span></code></pre></div></div>
+
+<p>Be especially careful with APIs behind CDNs. A missing <code class="language-plaintext highlighter-rouge">private</code> or <code class="language-plaintext highlighter-rouge">no-store</code> directive can accidentally cache user-specific data in a shared layer.</p>
+
+<h2 id="use-etags-for-validation">Use ETags for validation</h2>
+
+<p>An <code class="language-plaintext highlighter-rouge">ETag</code> is a version identifier for a response representation.</p>
+
+<p>First response:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">ETag</span><span class="p">:</span> <span class="s">"users-123-v7"</span>
+<span class="na">Cache-Control</span><span class="p">:</span> <span class="s">private, no-cache</span>
+</code></pre></div></div>
+
+<p>Later request:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /users/123
+If-None-Match: "users-123-v7"
+</span></code></pre></div></div>
+
+<p>If nothing changed, the server can return:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">304</span> <span class="ne">Not Modified</span>
+</code></pre></div></div>
+
+<p>The client reuses its cached body, and the API avoids sending the same JSON again.</p>
+
+<h2 id="last-modified-also-works">Last-Modified also works</h2>
+
+<p><code class="language-plaintext highlighter-rouge">Last-Modified</code> and <code class="language-plaintext highlighter-rouge">If-Modified-Since</code> are timestamp-based validation headers.</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Last-Modified: Sat, 07 Feb 2026 10:40:00 GMT
+</span></code></pre></div></div>
+
+<p>They are easy to implement when resources already have an <code class="language-plaintext highlighter-rouge">updated_at</code> field. ETags are usually more precise because they can represent any change in the response, not only timestamp changes.</p>
+
+<h2 id="handle-unsafe-methods-carefully">Handle unsafe methods carefully</h2>
+
+<p><code class="language-plaintext highlighter-rouge">GET</code> and <code class="language-plaintext highlighter-rouge">HEAD</code> are the usual cacheable methods. Mutating requests such as <code class="language-plaintext highlighter-rouge">POST</code>, <code class="language-plaintext highlighter-rouge">PATCH</code>, and <code class="language-plaintext highlighter-rouge">DELETE</code> should generally not be cached.</p>
+
+<p>After a mutation, clients may need to invalidate or refetch cached reads:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">PATCH /users/123
+GET /users/123
+</span></code></pre></div></div>
+
+<p>If you control both API and client, document which reads are affected by writes. If you use a CDN, make sure your purge or surrogate key strategy matches your resource model.</p>
+
+<h2 id="vary-when-responses-depend-on-headers">Vary when responses depend on headers</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">Vary</code> header tells caches which request headers affect the response.</p>
+
+<p>Example:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Vary: Accept-Encoding, Accept-Language
+</span></code></pre></div></div>
+
+<p>If an API response differs by authorization or tenant headers, shared caching becomes more complicated. In many cases, <code class="language-plaintext highlighter-rouge">private</code> or <code class="language-plaintext highlighter-rouge">no-store</code> is safer than trying to build a perfect shared cache key for personalized data.</p>
+
+<h2 id="avoid-caching-errors-blindly">Avoid caching errors blindly</h2>
+
+<p>Some error responses can be cached. For example, a public <code class="language-plaintext highlighter-rouge">404</code> for a missing static resource may be fine.</p>
+
+<p>But be careful with:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">401</code> and <code class="language-plaintext highlighter-rouge">403</code></li>
+  <li>temporary <code class="language-plaintext highlighter-rouge">500</code> errors</li>
+  <li>rate-limit responses</li>
+  <li>validation errors tied to one request</li>
+</ul>
+
+<p>If you do cache errors, make the lifetime short and intentional.</p>
+
+<h2 id="a-practical-caching-checklist">A practical caching checklist</h2>
+
+<p>For each <code class="language-plaintext highlighter-rouge">GET</code> endpoint, decide:</p>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Is the response public, private, or sensitive?</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Can shared caches store it?</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />How long is it fresh?</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Should clients revalidate with <code class="language-plaintext highlighter-rouge">ETag</code> or <code class="language-plaintext highlighter-rouge">Last-Modified</code>?</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Does the response vary by headers?</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />How are caches invalidated after writes?</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Are error responses cacheable?</li>
+</ul>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>HTTP caching works best when each endpoint has a clear freshness policy. Do not rely on defaults, and do not treat all responses the same.</p>
+
+<p>Cache public, stable data aggressively. Revalidate data that changes. Keep sensitive or personalized responses private or unstored. Those choices can improve performance without turning stale data into a production incident.</p>
+</div><p class="read-more">
+        <a href="/rest-api/http/caching/2026/02/07/http-caching-for-rest-apis.html">Read more &rarr;</a>
       </p></article><article class="post post-preview post-preview--truncated">
       <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">design</span></div><h2 class="post-title">
           <a href="/rest-api/design/2026/01/21/writing-rest-apis-that-developers-will-love.html">Writing REST APIs that Developers Will Love</a>
@@ -883,6 +1615,1130 @@ GET /posts?status=published&amp;author_id=42
 <p>Build the API you would want to integrate with on a Friday afternoon. That is the bar worth hitting.</p>
 </div><p class="read-more">
         <a href="/rest-api/design/2026/01/21/writing-rest-apis-that-developers-will-love.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">authentication</span><span class="post-category">security</span></div><h2 class="post-title">
+          <a href="/rest-api/authentication/security/2025/12/16/api-authentication-compared-api-keys-jwt-and-oauth-2-0.html">API Authentication Compared: API Keys, JWT, and OAuth 2.0</a>
+        </h2><figure class="post-featured-image"><a href="/rest-api/authentication/security/2025/12/16/api-authentication-compared-api-keys-jwt-and-oauth-2-0.html" aria-label="API Authentication Compared: API Keys, JWT, and OAuth 2.0"><img src="/assets/images/api-authentication-compared-api-keys-jwt-and-oauth-2-0.png" alt="Three API authentication options compared as API key, JWT token, and OAuth 2.0 authorization flow cards" loading="lazy" decoding="async"></a></figure><div class="post-meta">
+          <time datetime="2025-12-16T08:10:00-05:00">Dec 16, 2025</time>
+        </div>
+      </header>
+      <div class="post-content"><p>API authentication answers a simple question: who is calling? The right answer depends on the kind of client, the sensitivity of the data, and how much delegation the system needs.</p>
+
+<p>API keys, JWTs, and OAuth 2.0 are often discussed together, but they solve different problems.</p>
+
+<h2 id="api-keys">API keys</h2>
+
+<p>An API key is a secret string assigned to an application, account, or user.</p>
+
+<p>Common request pattern:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/reports
+Authorization: Bearer sk_live_123
+</span></code></pre></div></div>
+
+<p>Some APIs use a custom header:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">X-API-Key: sk_live_123
+</span></code></pre></div></div>
+
+<p>API keys are simple and work well for server-to-server integrations, internal tools, and low-friction developer onboarding.</p>
+
+<h3 id="strengths">Strengths</h3>
+
+<ul>
+  <li>Easy to issue and use</li>
+  <li>Good fit for scripts and backend services</li>
+  <li>Easy to rotate if each client has its own key</li>
+  <li>Simple to rate limit and audit by key</li>
+</ul>
+
+<h3 id="weaknesses">Weaknesses</h3>
+
+<ul>
+  <li>Usually long-lived</li>
+  <li>Often copied into config files or CI secrets</li>
+  <li>Do not represent delegated user consent by themselves</li>
+  <li>Need careful storage and rotation</li>
+</ul>
+
+<p>Treat API keys like passwords. Store only hashed keys if possible, show the full key once, and support revocation.</p>
+
+<h2 id="jwts">JWTs</h2>
+
+<p>A JWT, or JSON Web Token, is a signed token that carries claims.</p>
+
+<p>Example claims:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_123"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"iss"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://auth.example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"aud"</span><span class="p">:</span><span class="w"> </span><span class="s2">"api.example.com"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"exp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1765900000</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"scope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"orders:read"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>APIs commonly receive JWTs as bearer tokens:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Authorization: Bearer eyJhbGciOi...
+</span></code></pre></div></div>
+
+<p>The API verifies the token signature, checks expiration, validates issuer and audience, then uses the claims for authorization decisions.</p>
+
+<h3 id="strengths-1">Strengths</h3>
+
+<ul>
+  <li>Self-contained claims can reduce auth server lookups</li>
+  <li>Works well across services</li>
+  <li>Supports short-lived access tokens</li>
+  <li>Common in modern identity systems</li>
+</ul>
+
+<h3 id="weaknesses-1">Weaknesses</h3>
+
+<ul>
+  <li>Harder to revoke before expiration</li>
+  <li>Easy to validate incorrectly</li>
+  <li>Token size can grow quickly</li>
+  <li>Claims can become stale if user permissions change</li>
+</ul>
+
+<p>JWTs are not automatically secure. The value comes from correct validation, short lifetimes, and careful claim design.</p>
+
+<h2 id="oauth-20">OAuth 2.0</h2>
+
+<p>OAuth 2.0 is an authorization framework. It lets a user grant one application access to resources without sharing their password.</p>
+
+<p>A typical web app flow looks like:</p>
+
+<ol>
+  <li>The client redirects the user to the authorization server.</li>
+  <li>The user signs in and grants consent.</li>
+  <li>The client receives an authorization code.</li>
+  <li>The client exchanges the code for tokens.</li>
+  <li>The API receives an access token on each request.</li>
+</ol>
+
+<p>OAuth 2.0 access tokens are often JWTs, but they do not have to be. OAuth describes the flow and responsibilities, not just the token format.</p>
+
+<h3 id="strengths-2">Strengths</h3>
+
+<ul>
+  <li>Best fit for third-party delegated access</li>
+  <li>Supports scopes and consent</li>
+  <li>Separates authorization server from resource API</li>
+  <li>Mature patterns for web, mobile, and device clients</li>
+</ul>
+
+<h3 id="weaknesses-2">Weaknesses</h3>
+
+<ul>
+  <li>More moving parts than API keys</li>
+  <li>Requires careful redirect URI and client configuration</li>
+  <li>Easy to choose the wrong grant type</li>
+  <li>Overkill for simple internal APIs</li>
+</ul>
+
+<p>For browser and mobile apps, use Authorization Code with PKCE. Avoid old implicit-flow patterns for new applications.</p>
+
+<h2 id="which-one-should-you-choose">Which one should you choose?</h2>
+
+<p>For server-to-server integrations, API keys are often enough if they are scoped, rate limited, and easy to rotate.</p>
+
+<p>For first-party apps with a central identity provider, short-lived JWT access tokens are common and practical.</p>
+
+<p>For third-party apps accessing user data, OAuth 2.0 is the right model because it handles consent, scopes, and delegation.</p>
+
+<h2 id="authorization-still-matters">Authorization still matters</h2>
+
+<p>Authentication identifies the caller. Authorization decides what the caller can do.</p>
+
+<p>After validating a credential, still check:</p>
+
+<ul>
+  <li>Does this caller have access to this account or resource?</li>
+  <li>Does the token or key include the required scope?</li>
+  <li>Is the action allowed by role or policy?</li>
+  <li>Has the credential been revoked or disabled?</li>
+</ul>
+
+<p>A valid token should not mean unlimited access.</p>
+
+<h2 id="operational-basics">Operational basics</h2>
+
+<p>Whatever scheme you choose, support:</p>
+
+<ul>
+  <li>TLS only</li>
+  <li>Secret rotation</li>
+  <li>Credential revocation</li>
+  <li>Audit logs</li>
+  <li>Rate limits</li>
+  <li>Least-privilege scopes</li>
+  <li>Clear <code class="language-plaintext highlighter-rouge">401</code> and <code class="language-plaintext highlighter-rouge">403</code> errors</li>
+</ul>
+
+<p>Most authentication incidents come from operational gaps, not from the choice of token format alone.</p>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>API keys are simple, JWTs are portable, and OAuth 2.0 handles delegated access. They can also work together: an OAuth access token may be a JWT, and an internal service may still use an API key for automation.</p>
+
+<p>Choose the smallest model that fits the trust boundary. Then invest in validation, rotation, scopes, and monitoring. That is where authentication becomes reliable in production.</p>
+</div><p class="read-more">
+        <a href="/rest-api/authentication/security/2025/12/16/api-authentication-compared-api-keys-jwt-and-oauth-2-0.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">http</span><span class="post-category">cors</span></div><h2 class="post-title">
+          <a href="/rest-api/http/cors/2025/11/22/cors-explained-for-api-developers.html">CORS Explained for API Developers</a>
+        </h2><figure class="post-featured-image"><a href="/rest-api/http/cors/2025/11/22/cors-explained-for-api-developers.html" aria-label="CORS Explained for API Developers"><img src="/assets/images/cors-explained-for-api-developers.png" alt="A browser sending a cross-origin request to an API with allowed origin and preflight response headers" loading="lazy" decoding="async"></a></figure><div class="post-meta">
+          <time datetime="2025-11-22T11:05:00-05:00">Nov 22, 2025</time>
+        </div>
+      </header>
+      <div class="post-content"><p>CORS errors are frustrating because the API can work perfectly in curl while failing in the browser. That is the clue: CORS is a browser security feature, not a general HTTP feature.</p>
+
+<p>If you build APIs that browsers call directly, you need to understand what the browser is asking for and which headers your server must return.</p>
+
+<h2 id="what-cors-protects">What CORS protects</h2>
+
+<p>Browsers enforce the same-origin policy. A script loaded from one origin cannot freely read responses from another origin.</p>
+
+<p>An origin is the combination of:</p>
+
+<ul>
+  <li>Scheme: <code class="language-plaintext highlighter-rouge">https</code></li>
+  <li>Host: <code class="language-plaintext highlighter-rouge">app.example.com</code></li>
+  <li>Port: <code class="language-plaintext highlighter-rouge">443</code></li>
+</ul>
+
+<p>These are different origins:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://app.example.com
+https://api.example.com
+http://app.example.com
+https://app.example.com:8443
+</code></pre></div></div>
+
+<p>CORS, short for Cross-Origin Resource Sharing, is the mechanism that lets a server opt in to being called from another origin.</p>
+
+<h2 id="simple-requests">Simple requests</h2>
+
+<p>Some browser requests are considered simple. For example:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /users/me
+Origin: https://app.example.com
+</span></code></pre></div></div>
+
+<p>If the API allows that origin, it responds with:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Access-Control-Allow-Origin: https://app.example.com
+</span></code></pre></div></div>
+
+<p>The browser checks that header before making the response available to JavaScript. If the header is missing or does not match, the browser blocks the response even if the server returned <code class="language-plaintext highlighter-rouge">200 OK</code>.</p>
+
+<h2 id="preflight-requests">Preflight requests</h2>
+
+<p>Many API calls trigger a preflight request. The browser sends an <code class="language-plaintext highlighter-rouge">OPTIONS</code> request first to ask whether the real request is allowed.</p>
+
+<p>Example:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">OPTIONS /users/me
+Origin: https://app.example.com
+Access-Control-Request-Method: PATCH
+Access-Control-Request-Headers: authorization, content-type
+</span></code></pre></div></div>
+
+<p>The API should respond:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">204</span> <span class="ne">No Content</span>
+<span class="na">Access-Control-Allow-Origin</span><span class="p">:</span> <span class="s">https://app.example.com</span>
+<span class="na">Access-Control-Allow-Methods</span><span class="p">:</span> <span class="s">GET, POST, PATCH, DELETE</span>
+<span class="na">Access-Control-Allow-Headers</span><span class="p">:</span> <span class="s">Authorization, Content-Type</span>
+<span class="na">Access-Control-Max-Age</span><span class="p">:</span> <span class="s">600</span>
+</code></pre></div></div>
+
+<p>If the preflight succeeds, the browser sends the real <code class="language-plaintext highlighter-rouge">PATCH</code> request.</p>
+
+<h2 id="common-cors-headers">Common CORS headers</h2>
+
+<p>The headers you will use most often are:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Header</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Access-Control-Allow-Origin</code></td>
+      <td>Which origin may read the response</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Access-Control-Allow-Methods</code></td>
+      <td>Which methods are allowed for preflighted requests</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Access-Control-Allow-Headers</code></td>
+      <td>Which request headers are allowed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Access-Control-Allow-Credentials</code></td>
+      <td>Whether cookies or HTTP auth may be included</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Access-Control-Expose-Headers</code></td>
+      <td>Which response headers JavaScript may read</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Access-Control-Max-Age</code></td>
+      <td>How long the browser may cache preflight results</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Most CORS bugs come from a missing allowed header, an origin mismatch, or credentials being configured incorrectly.</p>
+
+<h2 id="be-careful-with-credentials">Be careful with credentials</h2>
+
+<p>Credentialed requests include cookies, client certificates, or HTTP authentication. In <code class="language-plaintext highlighter-rouge">fetch</code>, that usually means:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">fetch</span><span class="p">(</span><span class="dl">"</span><span class="s2">https://api.example.com/users/me</span><span class="dl">"</span><span class="p">,</span> <span class="p">{</span>
+  <span class="na">credentials</span><span class="p">:</span> <span class="dl">"</span><span class="s2">include</span><span class="dl">"</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>For this to work, the server must return:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Access-Control-Allow-Origin: https://app.example.com
+Access-Control-Allow-Credentials: true
+</span></code></pre></div></div>
+
+<p>You cannot combine credentialed requests with:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Access-Control-Allow-Origin: *
+</span></code></pre></div></div>
+
+<p>The server must echo or select a specific allowed origin.</p>
+
+<h2 id="do-not-use-cors-as-authentication">Do not use CORS as authentication</h2>
+
+<p>CORS limits which browser origins can read responses. It does not prove who the user is, and it does not stop non-browser clients from calling your API.</p>
+
+<p>Your API still needs real authentication and authorization:</p>
+
+<ul>
+  <li>Session cookies</li>
+  <li>Bearer tokens</li>
+  <li>API keys</li>
+  <li>OAuth 2.0 access tokens</li>
+</ul>
+
+<p>CORS is a browser access control layer. It is not a security model for your entire API.</p>
+
+<h2 id="configure-allowed-origins-explicitly">Configure allowed origins explicitly</h2>
+
+<p>For production, prefer an allowlist:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://app.example.com
+https://admin.example.com
+</code></pre></div></div>
+
+<p>Avoid reflecting any incoming <code class="language-plaintext highlighter-rouge">Origin</code> header without checking it. That turns CORS into “allow everyone” while making the configuration look more controlled than it is.</p>
+
+<p>For local development, add explicit local origins:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://localhost:3000
+http://localhost:5173
+</code></pre></div></div>
+
+<p>Keep development origins out of production if they are not needed there.</p>
+
+<h2 id="debugging-checklist">Debugging checklist</h2>
+
+<p>When a browser reports a CORS error, check:</p>
+
+<ul>
+  <li>Is the request coming from the origin you expect?</li>
+  <li>Does the response include <code class="language-plaintext highlighter-rouge">Access-Control-Allow-Origin</code>?</li>
+  <li>For preflight, does the <code class="language-plaintext highlighter-rouge">OPTIONS</code> route return success?</li>
+  <li>Are the requested method and headers allowed?</li>
+  <li>Are credentials enabled on both client and server if cookies are used?</li>
+  <li>Is the API redirecting the preflight request?</li>
+  <li>Is a proxy or CDN stripping CORS headers?</li>
+</ul>
+
+<p>Use the browser network panel. The console message is helpful, but the request and response headers tell the real story.</p>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>CORS is easier once you separate the browser rule from the API behavior. The server decides which origins, methods, and headers are allowed. The browser enforces that decision before JavaScript can read the response.</p>
+
+<p>Start with a small allowlist, handle <code class="language-plaintext highlighter-rouge">OPTIONS</code> correctly, and test both simple and credentialed requests. That covers most real-world CORS issues without weakening the API.</p>
+</div><p class="read-more">
+        <a href="/rest-api/http/cors/2025/11/22/cors-explained-for-api-developers.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">http</span><span class="post-category">status-codes</span></div><h2 class="post-title">
+          <a href="/rest-api/http/status-codes/2025/10/14/http-status-codes-every-api-developer-should-know.html">HTTP Status Codes Every API Developer Should Know</a>
+        </h2><figure class="post-featured-image"><a href="/rest-api/http/status-codes/2025/10/14/http-status-codes-every-api-developer-should-know.html" aria-label="HTTP Status Codes Every API Developer Should Know"><img src="/assets/images/http-status-codes-every-api-developer-should-know.png" alt="HTTP status code cards grouped into success, client error, and server error categories for REST APIs" loading="lazy" decoding="async"></a></figure><div class="post-meta">
+          <time datetime="2025-10-14T07:20:00-04:00">Oct 14, 2025</time>
+        </div>
+      </header>
+      <div class="post-content"><p>HTTP status codes are the first line of communication between a REST API and its clients. Before a client parses JSON, it sees whether the request succeeded, failed because of client input, or failed because of the server.</p>
+
+<p>You do not need to memorize every code. You do need to use the common ones consistently.</p>
+
+<h2 id="200-ok">200 OK</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">200 OK</code> when a request succeeds and returns a response body.</p>
+
+<p>Common examples:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /users/123
+PATCH /users/123
+</span></code></pre></div></div>
+
+<p>If the client expects a resource representation back, <code class="language-plaintext highlighter-rouge">200</code> is usually the right success code.</p>
+
+<h2 id="201-created">201 Created</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">201 Created</code> when the request created a new resource.</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">POST /users
+</span></code></pre></div></div>
+
+<p>If possible, include a <code class="language-plaintext highlighter-rouge">Location</code> header pointing to the new resource:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Location</span><span class="p">:</span> <span class="s">/users/123</span>
+</code></pre></div></div>
+
+<p>The response body can include the created resource so the client does not need to immediately fetch it again.</p>
+
+<h2 id="202-accepted">202 Accepted</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">202 Accepted</code> when the request was accepted but processing is not complete.</p>
+
+<p>This is useful for long-running jobs:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">POST /exports
+</span></code></pre></div></div>
+
+<p>Example response:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"job_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"exp_123"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"queued"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/exports/exp_123"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Do not use <code class="language-plaintext highlighter-rouge">202</code> if the work already finished. Use it when the client needs to poll, subscribe, or check later.</p>
+
+<h2 id="204-no-content">204 No Content</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">204 No Content</code> when a request succeeds and there is no response body.</p>
+
+<p>Common examples:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">DELETE /users/123
+PATCH /settings/email
+</span></code></pre></div></div>
+
+<p>A <code class="language-plaintext highlighter-rouge">204</code> response should not include a JSON body. If you want to return the updated resource, use <code class="language-plaintext highlighter-rouge">200 OK</code> instead.</p>
+
+<h2 id="400-bad-request">400 Bad Request</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">400 Bad Request</code> when the request cannot be understood or is structurally invalid.</p>
+
+<p>Examples:</p>
+
+<ul>
+  <li>Invalid JSON</li>
+  <li>Missing required query parameter</li>
+  <li>Wrong parameter type</li>
+  <li>Unsupported sort field</li>
+</ul>
+
+<p>Return a body that explains what the client can fix:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid_query_parameter"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"limit must be a number between 1 and 100."</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="401-unauthorized">401 Unauthorized</h2>
+
+<p>Despite the name, <code class="language-plaintext highlighter-rouge">401 Unauthorized</code> means the client is not authenticated.</p>
+
+<p>Use it when:</p>
+
+<ul>
+  <li>No credentials were provided</li>
+  <li>The token is expired</li>
+  <li>The API key is invalid</li>
+</ul>
+
+<p>For bearer tokens, include a <code class="language-plaintext highlighter-rouge">WWW-Authenticate</code> header when useful:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">WWW-Authenticate: Bearer error="invalid_token"
+</span></code></pre></div></div>
+
+<h2 id="403-forbidden">403 Forbidden</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">403 Forbidden</code> when the caller is authenticated but not allowed to perform the action.</p>
+
+<p>Example:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">DELETE /admin/users/123
+</span></code></pre></div></div>
+
+<p>If the token is valid but lacks the required role or scope, <code class="language-plaintext highlighter-rouge">403</code> is more accurate than <code class="language-plaintext highlighter-rouge">401</code>.</p>
+
+<h2 id="404-not-found">404 Not Found</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">404 Not Found</code> when the resource does not exist or should not be visible to the caller.</p>
+
+<p>Some APIs intentionally return <code class="language-plaintext highlighter-rouge">404</code> instead of <code class="language-plaintext highlighter-rouge">403</code> for private resources to avoid revealing that the resource exists. That is fine if it is consistent and documented.</p>
+
+<h2 id="409-conflict">409 Conflict</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">409 Conflict</code> when the request conflicts with current resource state.</p>
+
+<p>Examples:</p>
+
+<ul>
+  <li>Creating a user with an email that already exists</li>
+  <li>Updating a stale version of a document</li>
+  <li>Canceling an order that has already shipped</li>
+</ul>
+
+<p>The response should explain the conflict, not just say “conflict”.</p>
+
+<h2 id="422-unprocessable-entity">422 Unprocessable Entity</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">422 Unprocessable Entity</code> when the request syntax is valid but the content fails validation or business rules.</p>
+
+<p>Example:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"validation_failed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"One or more fields are invalid."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email"</span><span class="p">,</span><span class="w"> </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Must be a valid email address."</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Some teams use <code class="language-plaintext highlighter-rouge">400</code> for all validation failures. That can be fine. The key is to choose a rule and apply it consistently.</p>
+
+<h2 id="429-too-many-requests">429 Too Many Requests</h2>
+
+<p>Use <code class="language-plaintext highlighter-rouge">429 Too Many Requests</code> when a client exceeds a rate limit.</p>
+
+<p>Include retry information:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">429</span> <span class="ne">Too Many Requests</span>
+<span class="na">Retry-After</span><span class="p">:</span> <span class="s">60</span>
+<span class="na">X-RateLimit-Limit</span><span class="p">:</span> <span class="s">1000</span>
+<span class="na">X-RateLimit-Remaining</span><span class="p">:</span> <span class="s">0</span>
+</code></pre></div></div>
+
+<p>This lets clients back off instead of hammering the API.</p>
+
+<h2 id="500-502-503-and-504">500, 502, 503, and 504</h2>
+
+<p>Use 5xx codes for server-side failures.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">500 Internal Server Error</code> means an unexpected server error occurred</li>
+  <li><code class="language-plaintext highlighter-rouge">502 Bad Gateway</code> means an upstream service returned an invalid response</li>
+  <li><code class="language-plaintext highlighter-rouge">503 Service Unavailable</code> means the service is temporarily unavailable</li>
+  <li><code class="language-plaintext highlighter-rouge">504 Gateway Timeout</code> means an upstream service timed out</li>
+</ul>
+
+<p>Clients usually cannot fix 5xx errors. Return a safe message and a request id, then log the details internally.</p>
+
+<h2 id="a-practical-rule-of-thumb">A practical rule of thumb</h2>
+
+<p>Ask three questions:</p>
+
+<ol>
+  <li>Did the request succeed? Use <code class="language-plaintext highlighter-rouge">2xx</code>.</li>
+  <li>Did the client send something wrong? Use <code class="language-plaintext highlighter-rouge">4xx</code>.</li>
+  <li>Did the server or an upstream dependency fail? Use <code class="language-plaintext highlighter-rouge">5xx</code>.</li>
+</ol>
+
+<p>That simple split prevents many status code mistakes.</p>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>Status codes are small, but they shape how clients handle your API. Use them honestly, document your rules, and pair them with useful response bodies.</p>
+
+<p>If every endpoint uses the same status code vocabulary, integrations become easier to write, test, and debug.</p>
+</div><p class="read-more">
+        <a href="/rest-api/http/status-codes/2025/10/14/http-status-codes-every-api-developer-should-know.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">versioning</span><span class="post-category">design</span></div><h2 class="post-title">
+          <a href="/rest-api/versioning/design/2025/09/26/api-versioning-without-breaking-your-clients.html">API Versioning Without Breaking Your Clients</a>
+        </h2><figure class="post-featured-image"><a href="/rest-api/versioning/design/2025/09/26/api-versioning-without-breaking-your-clients.html" aria-label="API Versioning Without Breaking Your Clients"><img src="/assets/images/api-versioning-without-breaking-your-clients.png" alt="Two REST API versions running side by side with clients gradually migrating from v1 to v2" loading="lazy" decoding="async"></a></figure><div class="post-meta">
+          <time datetime="2025-09-26T13:45:00-04:00">Sep 26, 2025</time>
+        </div>
+      </header>
+      <div class="post-content"><p>APIs change because products change. New fields appear, old assumptions stop holding, and better models replace early decisions. The hard part is evolving the API without breaking every client that already depends on it.</p>
+
+<p>Versioning is not just a URL pattern. It is a promise about compatibility, migration, and communication.</p>
+
+<h2 id="first-know-what-counts-as-breaking">First, know what counts as breaking</h2>
+
+<p>Not every change needs a new version.</p>
+
+<p>Usually safe:</p>
+
+<ul>
+  <li>Adding a new optional response field</li>
+  <li>Adding a new endpoint</li>
+  <li>Adding a new optional request field</li>
+  <li>Adding a new enum value when clients are built to ignore unknown values</li>
+  <li>Improving performance without changing behavior</li>
+</ul>
+
+<p>Usually breaking:</p>
+
+<ul>
+  <li>Removing or renaming a field</li>
+  <li>Changing a field type</li>
+  <li>Making an optional field required</li>
+  <li>Changing pagination behavior</li>
+  <li>Changing authentication requirements</li>
+  <li>Reusing an existing status code for a different meaning</li>
+  <li>Changing an endpoint’s core semantics</li>
+</ul>
+
+<p>When in doubt, assume clients are less flexible than you hope. Many integrations deserialize into strict models and fail on surprises.</p>
+
+<h2 id="prefer-additive-changes">Prefer additive changes</h2>
+
+<p>The easiest versioning strategy is to avoid breaking changes when you can.</p>
+
+<p>Instead of renaming a field:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"usr_123"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Avery"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"display_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Avery"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Add the new field, keep the old one, and document which one new clients should use. You can deprecate the old field later after measuring usage.</p>
+
+<p>Instead of changing behavior behind <code class="language-plaintext highlighter-rouge">GET /reports</code>, add a new endpoint:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /reports
+GET /reports/summary
+</span></code></pre></div></div>
+
+<p>Additive changes are not always perfect, but they buy time and preserve trust.</p>
+
+<h2 id="pick-a-versioning-style">Pick a versioning style</h2>
+
+<p>Common REST API approaches include URL prefixes, headers, and media types.</p>
+
+<h3 id="url-versioning">URL versioning</h3>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /v1/users/123
+GET /v2/users/123
+</span></code></pre></div></div>
+
+<p>URL versioning is obvious, easy to route, and simple for documentation. It is also the most familiar option for many public APIs.</p>
+
+<h3 id="header-versioning">Header versioning</h3>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /users/123
+API-Version: 2025-09-26
+</span></code></pre></div></div>
+
+<p>Header versioning keeps URLs clean and can support date-based versions. The trade-off is discoverability. A developer cannot see the version by glancing at a link.</p>
+
+<h3 id="media-type-versioning">Media type versioning</h3>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Accept: application/vnd.example.v2+json
+</span></code></pre></div></div>
+
+<p>This is precise but more complex. It works best for APIs with strong HTTP content negotiation practices.</p>
+
+<p>For most teams, <code class="language-plaintext highlighter-rouge">/v1</code> and <code class="language-plaintext highlighter-rouge">/v2</code> are boring in the best way.</p>
+
+<h2 id="version-the-contract-not-every-endpoint">Version the contract, not every endpoint</h2>
+
+<p>Avoid mixing versions endpoint by endpoint unless you have a strong reason. A client using <code class="language-plaintext highlighter-rouge">/v1</code> should not have to remember that users are v1, invoices are v2, and reports are halfway between.</p>
+
+<p>That does not mean every endpoint must be rewritten for a new major version. It means the public contract should feel coherent. Internally, v2 routes can reuse v1 handlers where behavior is unchanged.</p>
+
+<h2 id="use-deprecation-and-sunset-headers">Use deprecation and sunset headers</h2>
+
+<p>When you need to retire an old version, tell clients in responses:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Deprecation: true
+Sunset: Wed, 31 Dec 2025 23:59:59 GMT
+Link: &lt;https://docs.example.com/migrate/v2&gt;; rel="deprecation"
+</span></code></pre></div></div>
+
+<p>These headers are not a replacement for email, changelogs, dashboard notices, or direct partner outreach. They are an extra signal that automated clients and observability tools can see.</p>
+
+<h2 id="give-clients-a-migration-guide">Give clients a migration guide</h2>
+
+<p>A good migration guide is concrete:</p>
+
+<ul>
+  <li>What changed</li>
+  <li>Why it changed</li>
+  <li>Which endpoints are affected</li>
+  <li>Old request and response examples</li>
+  <li>New request and response examples</li>
+  <li>Deadline for migration</li>
+  <li>Contact path for help</li>
+</ul>
+
+<p>Do not make clients diff two reference docs and guess what matters.</p>
+
+<h2 id="measure-old-version-usage">Measure old-version usage</h2>
+
+<p>Before removing a version, know who still uses it.</p>
+
+<p>Track:</p>
+
+<ul>
+  <li>Requests by API version</li>
+  <li>Requests by endpoint</li>
+  <li>Authenticated account or application id</li>
+  <li>Error rates after migration</li>
+  <li>Deprecated fields still present in responses</li>
+</ul>
+
+<p>Usage data lets you contact the right customers and avoid deleting something that a critical integration still depends on.</p>
+
+<h2 id="test-versions-side-by-side">Test versions side by side</h2>
+
+<p>Automated tests should cover old and new behavior while both versions are live.</p>
+
+<p>At minimum, test:</p>
+
+<ul>
+  <li>v1 still returns its documented response</li>
+  <li>v2 returns the new response</li>
+  <li>shared business logic behaves the same where expected</li>
+  <li>auth and rate limits apply consistently</li>
+  <li>old clients do not accidentally route to new handlers</li>
+</ul>
+
+<p>Versioning often fails at the routing and serialization layer, not in the domain logic.</p>
+
+<h2 id="a-practical-versioning-policy">A practical versioning policy</h2>
+
+<p>Write down a short policy for your team:</p>
+
+<ul>
+  <li>Which changes are breaking</li>
+  <li>Which versioning style the API uses</li>
+  <li>How long old versions are supported</li>
+  <li>How deprecations are announced</li>
+  <li>How usage is measured</li>
+  <li>Who approves breaking changes</li>
+</ul>
+
+<p>The policy does not need to be long. It just needs to prevent every team from inventing a different rule under deadline pressure.</p>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>Versioning is a social contract backed by technical routing. The goal is not to preserve old behavior forever. The goal is to make change predictable.</p>
+
+<p>Prefer additive changes, version only when the contract truly breaks, and give clients clear migration paths. APIs that evolve carefully earn more trust than APIs that never change or change without warning.</p>
+</div><p class="read-more">
+        <a href="/rest-api/versioning/design/2025/09/26/api-versioning-without-breaking-your-clients.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">design</span><span class="post-category">pagination</span></div><h2 class="post-title">
+          <a href="/rest-api/design/pagination/2025/08/18/pagination-filtering-and-sorting-in-rest-apis.html">Pagination, Filtering, and Sorting in REST APIs</a>
+        </h2><figure class="post-featured-image"><a href="/rest-api/design/pagination/2025/08/18/pagination-filtering-and-sorting-in-rest-apis.html" aria-label="Pagination, Filtering, and Sorting in REST APIs"><img src="/assets/images/pagination-filtering-and-sorting-in-rest-apis.png" alt="A REST API collection response with pagination controls, filter chips, and a descending sort indicator" loading="lazy" decoding="async"></a></figure><div class="post-meta">
+          <time datetime="2025-08-18T05:15:00-04:00">Aug 18, 2025</time>
+        </div>
+      </header>
+      <div class="post-content"><p>List endpoints look simple until they return too much data. A <code class="language-plaintext highlighter-rouge">GET /orders</code> endpoint that works in development can become slow, expensive, and hard to use once the table has millions of rows.</p>
+
+<p>Pagination, filtering, and sorting turn list endpoints into predictable tools. They help servers protect resources and help clients ask for exactly the slice of data they need.</p>
+
+<h2 id="always-paginate-collections">Always paginate collections</h2>
+
+<p>Unbounded arrays are a common REST API mistake. Even if the list is small today, the endpoint contract should make room for growth.</p>
+
+<p>A basic page-based request might look like this:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /orders?page=2&amp;limit=25
+</span></code></pre></div></div>
+
+<p>And the response:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ord_101"</span><span class="p">,</span><span class="w"> </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"paid"</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"pagination"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"page"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"total"</span><span class="p">:</span><span class="w"> </span><span class="mi">413</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"total_pages"</span><span class="p">:</span><span class="w"> </span><span class="mi">17</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Page-based pagination is easy to understand and works well for admin screens, reports, and moderately sized datasets.</p>
+
+<h2 id="know-when-to-use-cursors">Know when to use cursors</h2>
+
+<p>Offset or page pagination can become unreliable when records are added or removed while the client is paging. It can also be expensive for deep pages in large tables.</p>
+
+<p>Cursor pagination uses a pointer instead:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /orders?limit=25&amp;cursor=eyJjcmVhdGVkX2F0IjoiMjAyNS0wOC0xOFQwOToxNTowMFoifQ
+</span></code></pre></div></div>
+
+<p>Example response:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ord_101"</span><span class="p">,</span><span class="w"> </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-08-18T09:15:00Z"</span><span class="w"> </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"pagination"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"next_cursor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJjcmVhdGVkX2F0IjoiMjAyNS0wOC0xOFQwOTowMDowMFoifQ"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Cursors are a good fit for activity feeds, event streams, logs, and large tables where clients mostly move forward through results.</p>
+
+<h2 id="set-defaults-and-maximums">Set defaults and maximums</h2>
+
+<p>Document default and maximum page sizes:</p>
+
+<ul>
+  <li>Default <code class="language-plaintext highlighter-rouge">limit</code>: <code class="language-plaintext highlighter-rouge">25</code></li>
+  <li>Maximum <code class="language-plaintext highlighter-rouge">limit</code>: <code class="language-plaintext highlighter-rouge">100</code></li>
+  <li>Default sort: <code class="language-plaintext highlighter-rouge">created_at desc</code></li>
+</ul>
+
+<p>Do not let clients request <code class="language-plaintext highlighter-rouge">limit=100000</code>. A maximum protects the database, response size, and downstream clients. If a client needs bulk export, create a separate export workflow instead of stretching a list endpoint past its purpose.</p>
+
+<h2 id="design-filters-around-real-use-cases">Design filters around real use cases</h2>
+
+<p>Filters should map to fields that users actually search by and that the backend can support efficiently.</p>
+
+<p>Good examples:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /orders?status=paid
+GET /orders?customer_id=cus_123
+GET /orders?created_after=2025-08-01T00:00:00Z
+GET /orders?status=paid&amp;created_after=2025-08-01T00:00:00Z
+</span></code></pre></div></div>
+
+<p>Avoid inventing a complex query language unless your API truly needs one. Most products can start with explicit query parameters and add advanced search later.</p>
+
+<h2 id="make-sorting-explicit">Make sorting explicit</h2>
+
+<p>A compact sorting convention is to use a leading minus sign for descending order:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /orders?sort=-created_at
+GET /orders?sort=status,-created_at
+</span></code></pre></div></div>
+
+<p>Another readable option is separate parameters:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /orders?sort_by=created_at&amp;sort_direction=desc
+</span></code></pre></div></div>
+
+<p>Either style can work. The important part is to document allowed sort fields and reject unsupported ones with a clear error.</p>
+
+<h2 id="keep-ordering-stable">Keep ordering stable</h2>
+
+<p>Stable ordering prevents duplicates and missing records between pages. If many rows can share the same sort value, add a tie-breaker such as <code class="language-plaintext highlighter-rouge">id</code>.</p>
+
+<p>For example, sort by:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">created_at</span> <span class="k">DESC</span><span class="p">,</span> <span class="n">id</span> <span class="k">DESC</span>
+</code></pre></div></div>
+
+<p>Then encode both values into a cursor. This gives the server a precise place to resume from.</p>
+
+<h2 id="return-useful-metadata">Return useful metadata</h2>
+
+<p>Page-based APIs often return totals:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"pagination"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"page"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"total"</span><span class="p">:</span><span class="w"> </span><span class="mi">413</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"total_pages"</span><span class="p">:</span><span class="w"> </span><span class="mi">17</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Cursor-based APIs usually avoid totals because counting can be expensive. Instead, return navigation hints:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"pagination"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"next_cursor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc123"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"has_more"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Choose metadata that matches the pagination model and can be produced efficiently.</p>
+
+<h2 id="validate-query-parameters">Validate query parameters</h2>
+
+<p>Bad query parameters should fail loudly. If <code class="language-plaintext highlighter-rouge">limit=banana</code> or <code class="language-plaintext highlighter-rouge">sort=password_hash</code> is invalid, return a <code class="language-plaintext highlighter-rouge">400</code> or <code class="language-plaintext highlighter-rouge">422</code> with a useful error.</p>
+
+<p>Example:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"invalid_query_parameter"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The sort field is not supported."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sort"</span><span class="p">,</span><span class="w"> </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Allowed values: created_at, status, total."</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Silent fallback makes client bugs harder to find.</p>
+
+<h2 id="a-practical-checklist">A practical checklist</h2>
+
+<p>For every list endpoint, define:</p>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Default page size</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Maximum page size</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Pagination style: page, offset, or cursor</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Default sort order</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Allowed sort fields</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Supported filters</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Response metadata</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Error behavior for invalid query parameters</li>
+</ul>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>List endpoints deserve design attention. Pagination protects the system, filtering keeps responses relevant, and sorting makes results predictable.</p>
+
+<p>Start with simple parameters, document defaults, and keep ordering stable. If the dataset grows or changes frequently, move to cursor pagination before clients start depending on brittle offset behavior.</p>
+</div><p class="read-more">
+        <a href="/rest-api/design/pagination/2025/08/18/pagination-filtering-and-sorting-in-rest-apis.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">errors</span><span class="post-category">design</span></div><h2 class="post-title">
+          <a href="/rest-api/errors/design/2025/07/09/rest-api-error-responses-that-actually-help.html">REST API Error Responses That Actually Help</a>
+        </h2><figure class="post-featured-image"><a href="/rest-api/errors/design/2025/07/09/rest-api-error-responses-that-actually-help.html" aria-label="REST API Error Responses That Actually Help"><img src="/assets/images/rest-api-error-responses-that-actually-help.png" alt="A REST API error response card showing a status code, stable error code, and field-level validation details" loading="lazy" decoding="async"></a></figure><div class="post-meta">
+          <time datetime="2025-07-09T10:30:00-04:00">Jul 9, 2025</time>
+        </div>
+      </header>
+      <div class="post-content"><p>Error responses are part of your API contract. They are not just a place to dump a stack trace or a generic “Something went wrong” message. When an integration fails, the error response is often the only clue a developer has.</p>
+
+<p>A helpful REST API error tells the client what happened, whether the request can be fixed, and where to look next.</p>
+
+<h2 id="start-with-the-right-status-code">Start with the right status code</h2>
+
+<p>The HTTP status code should describe the outcome before the client reads the body.</p>
+
+<p>Use common codes consistently:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Use it when</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">400 Bad Request</code></td>
+      <td>The request is malformed or missing required input</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">401 Unauthorized</code></td>
+      <td>Authentication is missing or invalid</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">403 Forbidden</code></td>
+      <td>The caller is authenticated but not allowed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">404 Not Found</code></td>
+      <td>The resource does not exist or is not visible</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">409 Conflict</code></td>
+      <td>The request conflicts with current state</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">422 Unprocessable Entity</code></td>
+      <td>The syntax is valid but validation failed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">429 Too Many Requests</code></td>
+      <td>The caller exceeded a rate limit</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">500 Internal Server Error</code></td>
+      <td>The server failed unexpectedly</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Do not return <code class="language-plaintext highlighter-rouge">200 OK</code> for failed operations. Many clients, gateways, and monitoring tools rely on status codes to tell success from failure.</p>
+
+<h2 id="use-one-error-shape">Use one error shape</h2>
+
+<p>Pick a response format and use it everywhere. A simple shape is enough for most APIs:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"validation_failed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"One or more fields are invalid."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Must be a valid email address."</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The exact field names matter less than consistency. Clients should not have to handle one format for auth errors, another for validation, and a third for conflicts.</p>
+
+<h2 id="include-a-stable-error-code">Include a stable error code</h2>
+
+<p>Human-readable messages can change. Stable error codes should not.</p>
+
+<p>Good codes are short, specific, and documented:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">validation_failed</code></li>
+  <li><code class="language-plaintext highlighter-rouge">email_already_exists</code></li>
+  <li><code class="language-plaintext highlighter-rouge">token_expired</code></li>
+  <li><code class="language-plaintext highlighter-rouge">rate_limit_exceeded</code></li>
+  <li><code class="language-plaintext highlighter-rouge">payment_required</code></li>
+</ul>
+
+<p>Avoid codes like <code class="language-plaintext highlighter-rouge">bad_request</code> when you can be more precise. The status code already says the request was bad; the error code should say why.</p>
+
+<h2 id="point-to-the-broken-field">Point to the broken field</h2>
+
+<p>Validation errors should identify the field or parameter that failed. This is especially important for forms, SDKs, and CLI tools that want to show users exactly what to fix.</p>
+
+<p>Example:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"validation_failed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"One or more fields are invalid."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"name"</span><span class="p">,</span><span class="w"> </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Required."</span><span class="w"> </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="nl">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"limit"</span><span class="p">,</span><span class="w"> </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Must be between 1 and 100."</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>For nested input, use a clear path such as <code class="language-plaintext highlighter-rouge">billing.address.postal_code</code> or JSON Pointer style paths like <code class="language-plaintext highlighter-rouge">/billing/address/postal_code</code>. Pick one and document it.</p>
+
+<h2 id="separate-safe-messages-from-internal-details">Separate safe messages from internal details</h2>
+
+<p>Do not expose stack traces, SQL errors, internal service names, or secrets in public error responses. They are noisy for clients and risky for security.</p>
+
+<p>Log internal details on the server with a request id:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"internal_error"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The request could not be completed."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"request_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"req_01J4XK4Y9MQ7"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">request_id</code> gives support and engineering teams a way to connect the client-visible failure to server logs.</p>
+
+<h2 id="make-retry-behavior-clear">Make retry behavior clear</h2>
+
+<p>Some failures are permanent. Others can be retried.</p>
+
+<p>For rate limits and temporary outages, include headers when possible:</p>
+
+<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">429</span> <span class="ne">Too Many Requests</span>
+<span class="na">Retry-After</span><span class="p">:</span> <span class="s">60</span>
+<span class="na">X-RateLimit-Limit</span><span class="p">:</span> <span class="s">1000</span>
+<span class="na">X-RateLimit-Remaining</span><span class="p">:</span> <span class="s">0</span>
+<span class="na">X-RateLimit-Reset</span><span class="p">:</span> <span class="s">1752079200</span>
+</code></pre></div></div>
+
+<p>For conflicts, explain what state caused the conflict:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"version_conflict"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This resource was updated by another request. Fetch the latest version and try again."</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Clients can handle these cases intelligently only when the API gives them enough information.</p>
+
+<h2 id="document-error-responses">Document error responses</h2>
+
+<p>Every endpoint should document its common errors, not just its happy path.</p>
+
+<p>Include:</p>
+
+<ul>
+  <li>Status code</li>
+  <li>Stable error code</li>
+  <li>Example response body</li>
+  <li>Whether the client can retry</li>
+  <li>Any relevant headers</li>
+</ul>
+
+<p>If you publish an OpenAPI spec, model your error response as a reusable schema. That keeps documentation, generated clients, and tests aligned.</p>
+
+<h2 id="a-practical-checklist">A practical checklist</h2>
+
+<p>Before shipping an endpoint, check:</p>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Failed requests use non-2xx status codes</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Every error uses the same response shape</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Error codes are stable and documented</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Validation errors identify fields or parameters</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Internal details stay in logs, not responses</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Retry and rate-limit behavior is clear</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Every response includes a request id when useful</li>
+</ul>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>Good error responses reduce support tickets and shorten debugging sessions. They also make your API feel intentional when something goes wrong.</p>
+
+<p>Start with honest status codes, one predictable error shape, and stable machine-readable codes. Add field-level details, request ids, and retry hints where they matter. That is enough to turn a frustrating failure into a fixable one.</p>
+</div><p class="read-more">
+        <a href="/rest-api/errors/design/2025/07/09/rest-api-error-responses-that-actually-help.html">Read more &rarr;</a>
       </p></article></div>
 </section></div><aside class="sidebar" aria-label="Recent posts">
   <h2 class="sidebar-heading">Recent posts</h2>
@@ -893,11 +2749,41 @@ GET /posts?status=published&amp;author_id=42
       <a href="/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html">How to test REST APIs with Postman</a>
       <time class="sidebar-post-date" datetime="2026-06-23T17:00:00-04:00">Jun 23, 2026</time>
     </li><li class="">
+      <a href="/rest-api/typescript/clients/2026/06/10/building-type-safe-rest-api-clients-in-typescript.html">Building Type-Safe REST API Clients in TypeScript</a>
+      <time class="sidebar-post-date" datetime="2026-06-10T11:35:00-04:00">Jun 10, 2026</time>
+    </li><li class="">
+      <a href="/rest-api/testing/contracts/2026/05/04/contract-testing-for-rest-apis.html">Contract Testing for REST APIs</a>
+      <time class="sidebar-post-date" datetime="2026-05-04T04:55:00-04:00">May 4, 2026</time>
+    </li><li class="">
       <a href="/javascript/typescript/migration/2026/04/19/migrating-from-javascript-to-typescript.html">Migrating from JavaScript to Typescript</a>
       <time class="sidebar-post-date" datetime="2026-04-19T08:00:00-04:00">Apr 19, 2026</time>
     </li><li class="">
+      <a href="/rest-api/testing/cli/2026/03/12/testing-rest-apis-from-the-command-line.html">Testing REST APIs from the Command Line</a>
+      <time class="sidebar-post-date" datetime="2026-03-12T15:25:00-04:00">Mar 12, 2026</time>
+    </li><li class="">
+      <a href="/rest-api/http/caching/2026/02/07/http-caching-for-rest-apis.html">HTTP Caching for REST APIs</a>
+      <time class="sidebar-post-date" datetime="2026-02-07T05:40:00-05:00">Feb 7, 2026</time>
+    </li><li class="">
       <a href="/rest-api/design/2026/01/21/writing-rest-apis-that-developers-will-love.html">Writing REST APIs that Developers Will Love</a>
       <time class="sidebar-post-date" datetime="2026-01-21T07:00:00-05:00">Jan 21, 2026</time>
+    </li><li class="">
+      <a href="/rest-api/authentication/security/2025/12/16/api-authentication-compared-api-keys-jwt-and-oauth-2-0.html">API Authentication Compared: API Keys, JWT, and OAuth 2.0</a>
+      <time class="sidebar-post-date" datetime="2025-12-16T08:10:00-05:00">Dec 16, 2025</time>
+    </li><li class="">
+      <a href="/rest-api/http/cors/2025/11/22/cors-explained-for-api-developers.html">CORS Explained for API Developers</a>
+      <time class="sidebar-post-date" datetime="2025-11-22T11:05:00-05:00">Nov 22, 2025</time>
+    </li><li class="">
+      <a href="/rest-api/http/status-codes/2025/10/14/http-status-codes-every-api-developer-should-know.html">HTTP Status Codes Every API Developer Should Know</a>
+      <time class="sidebar-post-date" datetime="2025-10-14T07:20:00-04:00">Oct 14, 2025</time>
+    </li><li class="">
+      <a href="/rest-api/versioning/design/2025/09/26/api-versioning-without-breaking-your-clients.html">API Versioning Without Breaking Your Clients</a>
+      <time class="sidebar-post-date" datetime="2025-09-26T13:45:00-04:00">Sep 26, 2025</time>
+    </li><li class="">
+      <a href="/rest-api/design/pagination/2025/08/18/pagination-filtering-and-sorting-in-rest-apis.html">Pagination, Filtering, and Sorting in REST APIs</a>
+      <time class="sidebar-post-date" datetime="2025-08-18T05:15:00-04:00">Aug 18, 2025</time>
+    </li><li class="">
+      <a href="/rest-api/errors/design/2025/07/09/rest-api-error-responses-that-actually-help.html">REST API Error Responses That Actually Help</a>
+      <time class="sidebar-post-date" datetime="2025-07-09T10:30:00-04:00">Jul 9, 2025</time>
     </li></ul>
 </aside></div></div>
   </main><footer class="site-footer h-card">
