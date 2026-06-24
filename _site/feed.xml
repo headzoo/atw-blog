@@ -1,4 +1,145 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4001/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4001/" rel="alternate" type="text/html" /><updated>2026-06-24T08:42:48-04:00</updated><id>http://localhost:4001/feed.xml</id><title type="html">Application-to-Web Internals</title><subtitle>Discover the world of REST APIs with our comprehensive notes and insights. From basic concepts to advanced techniques, we provide valuable resources for developers and enthusiasts alike.</subtitle><author><name>Sean</name></author><entry><title type="html">How to test REST APIs with Postman</title><link href="http://localhost:4001/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html" rel="alternate" type="text/html" title="How to test REST APIs with Postman" /><published>2026-06-23T17:00:00-04:00</published><updated>2026-06-23T17:00:00-04:00</updated><id>http://localhost:4001/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman</id><content type="html" xml:base="http://localhost:4001/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html"><![CDATA[<p>Postman is one of the fastest ways to explore and validate a REST API without writing a full client. You can send requests, inspect responses, and repeat the same checks across environments — all from a single workspace.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4001/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4001/" rel="alternate" type="text/html" /><updated>2026-06-24T08:45:24-04:00</updated><id>http://localhost:4001/feed.xml</id><title type="html">Application-to-Web Internals</title><subtitle>Discover the world of REST APIs with our comprehensive notes and insights. From basic concepts to advanced techniques, we provide valuable resources for developers and enthusiasts alike.</subtitle><author><name>Sean</name></author><entry><title type="html">Postman Alternatives</title><link href="http://localhost:4001/rest-api/testing/tools/2026/06/24/postman-alternatives.html" rel="alternate" type="text/html" title="Postman Alternatives" /><published>2026-06-24T08:00:00-04:00</published><updated>2026-06-24T08:00:00-04:00</updated><id>http://localhost:4001/rest-api/testing/tools/2026/06/24/postman-alternatives</id><content type="html" xml:base="http://localhost:4001/rest-api/testing/tools/2026/06/24/postman-alternatives.html"><![CDATA[<p>Postman is the default API client for a lot of teams. It is polished, familiar, and covers most day-to-day REST testing needs. But not every project fits the same workflow. Pricing, required accounts, cloud sync, privacy requirements, or a preference for lighter tools often push developers to look elsewhere.</p>
+
+<p>This guide surveys practical Postman alternatives — from desktop apps that keep your data local to browser and editor tools that fit different workflows. None of these tools need to replace Postman entirely; the right choice depends on how you work, who you collaborate with, and where you want your collections to live.</p>
+
+<h2 id="why-teams-look-beyond-postman">Why teams look beyond Postman</h2>
+
+<p>Common reasons developers switch or supplement Postman include:</p>
+
+<ul>
+  <li><strong>Cost and licensing</strong> — per-seat plans add up for larger teams</li>
+  <li><strong>Account and cloud requirements</strong> — some workflows need offline or self-hosted options</li>
+  <li><strong>Data ownership</strong> — collections tied to a vendor account are harder to move or audit</li>
+  <li><strong>Workflow fit</strong> — git-based collections, CLI automation, or in-editor testing may match your stack better</li>
+  <li><strong>Feature scope</strong> — a simpler tool can be faster when you only need request/response testing</li>
+</ul>
+
+<p>The alternatives below address different combinations of these needs.</p>
+
+<h2 id="harborclient">HarborClient</h2>
+
+<p><a href="https://harborclient.com/">HarborClient</a> is a free, open-source desktop API client for macOS, Windows, and Linux. It offers a familiar Postman-style workspace — collections, environments, request scripts, tests, and a tabbed editor — while keeping your work on your machine or on storage you control. There are no accounts, subscriptions, or required cloud sync.</p>
+
+<h3 id="what-harborclient-offers">What HarborClient offers</h3>
+
+<ul>
+  <li><strong>Collections and environments</strong> — organize saved requests, share variables across a collection, and switch global environment groups from the tab bar</li>
+  <li><strong>Request builder</strong> — method selector, URL bar, query params, headers, and body (JSON or plain text)</li>
+  <li><strong>Scripts and tests</strong> — pre- and post-request JavaScript at the collection or request level; post-request tests with assertions shown in a Tests tab</li>
+  <li><strong>Variable substitution</strong> — use <code class="language-plaintext highlighter-rouge">{{variable}}</code> placeholders in URLs, headers, params, body, and scripts</li>
+  <li><strong>Tabbed workspace</strong> — open multiple requests side by side with independent drafts and responses</li>
+</ul>
+
+<h3 id="storage-and-collaboration">Storage and collaboration</h3>
+
+<p>HarborClient defaults to local SQLite and supports pluggable backends:</p>
+
+<ul>
+  <li><strong>Local SQLite</strong> — collections and environments stay on your machine by default</li>
+  <li><strong>Remote databases</strong> — optional MySQL, PostgreSQL, or Firestore when you need shared storage you operate</li>
+  <li><strong>Git-backed collections</strong> — version-controlled collection files you can commit and push from the app</li>
+  <li><strong>Team Hub</strong> — self-hosted collaboration with token-based access, without sharing database credentials across teammates</li>
+  <li><strong>Encrypted sharing</strong> — signed share tokens for remote collections using RSA keys you manage</li>
+</ul>
+
+<h3 id="migrating-from-postman">Migrating from Postman</h3>
+
+<p>HarborClient imports <strong>Postman v2.1</strong> collection exports. After install, use <strong>Collections → Import</strong> or <strong>File → Import</strong> to bring existing work over. Some Postman-specific settings and scripts may need adjustment after import — HarborClient does not claim full feature parity — but the core request, variable, and collection structure usually transfers cleanly.</p>
+
+<p><strong>Best for:</strong> individual developers and teams that want a real desktop app, local or self-hosted data, and a Postman-like workflow without vendor lock-in.</p>
+
+<p>Downloads and docs: <a href="https://harborclient.com/">harborclient.com</a> · <a href="https://github.com/headzoo/harborclient/releases/latest">GitHub releases</a></p>
+
+<h2 id="insomnia">Insomnia</h2>
+
+<p><a href="https://insomnia.rest/">Insomnia</a> is a dedicated REST and GraphQL API client with a clean interface and strong support for multiple auth types, environment variables, and request chaining. It targets developers who want a polished, standalone app focused on API design and exploration rather than broader platform features.</p>
+
+<p>Insomnia organizes work into <strong>design documents</strong> and <strong>collections</strong>, supports GraphQL queries alongside REST, and includes plugins for extending behavior. Cloud sync and team features are available on paid plans; local-only use remains possible for individual workflows.</p>
+
+<p><strong>Best for:</strong> developers who need REST and GraphQL in one polished desktop client and are comfortable with Insomnia’s account and sync model.</p>
+
+<h2 id="bruno">Bruno</h2>
+
+<p><a href="https://www.usebruno.com/">Bruno</a> stores API collections as plain files in a folder on disk — typically committed to git. There is no proprietary cloud sync; collaboration happens through branches, pull requests, and your existing version-control workflow.</p>
+
+<p>Bruno supports environments, scripting, and a straightforward request editor. Because collections are files, diffs and reviews in git are natural. The trade-off is less built-in team infrastructure than account-based clients provide.</p>
+
+<p><strong>Best for:</strong> teams that want collections in the repo next to application code and prefer git as the collaboration layer.</p>
+
+<h2 id="httpie">HTTPie</h2>
+
+<p><a href="https://httpie.io/">HTTPie</a> started as a friendly command-line HTTP client (<code class="language-plaintext highlighter-rouge">http GET api.example.com/users</code>) and expanded into a desktop app and other tooling. The CLI remains popular for quick one-off requests, scripting, and automation in shell pipelines.</p>
+
+<p>For developers who already live in the terminal, HTTPie can be faster than opening a GUI for exploratory calls. The desktop app adds a visual layer when you want forms and response inspection without leaving the HTTPie ecosystem.</p>
+
+<p><strong>Best for:</strong> CLI-first workflows, scripting, and developers who want minimal friction for ad hoc HTTP calls.</p>
+
+<h2 id="hoppscotch">Hoppscotch</h2>
+
+<p><a href="https://hoppscotch.com/">Hoppscotch</a> is a browser-based API client for quick REST, GraphQL, and WebSocket testing. No install is required for the web app — open a tab, paste a URL, and send a request.</p>
+
+<p>Hoppscotch fits spur-of-the-moment exploration, demos, and environments where installing desktop software is awkward. Collections and workspaces exist, but the tool is optimized for speed and accessibility rather than deep team collection management.</p>
+
+<p><strong>Best for:</strong> fast browser-based exploration and lightweight testing without a local install.</p>
+
+<h2 id="thunder-client">Thunder Client</h2>
+
+<p><a href="https://www.thunderclient.com/">Thunder Client</a> is a VS Code extension that brings REST API testing into the editor. Collections, environments, and test scripts live inside your IDE workspace, which suits developers who want to test APIs while coding without switching applications.</p>
+
+<p>Thunder Client covers common HTTP methods, auth, and collection organization. It integrates with the editor’s UI patterns — sidebar panels, keyboard shortcuts, and workspace-scoped storage — so API tests stay close to the code they exercise.</p>
+
+<p><strong>Best for:</strong> VS Code users who want API testing embedded in their editor workflow.</p>
+
+<h2 id="how-to-choose">How to choose</h2>
+
+<p>Rather than ranking tools on every feature, match the tool to your constraints:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>If you need…</th>
+      <th>Consider…</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Local data, no accounts, open source, Postman-like desktop app</td>
+      <td>HarborClient</td>
+    </tr>
+    <tr>
+      <td>REST + GraphQL in a polished standalone client</td>
+      <td>Insomnia</td>
+    </tr>
+    <tr>
+      <td>Collections as git files in your repository</td>
+      <td>Bruno</td>
+    </tr>
+    <tr>
+      <td>Terminal and scripting workflows</td>
+      <td>HTTPie</td>
+    </tr>
+    <tr>
+      <td>Zero-install browser testing</td>
+      <td>Hoppscotch</td>
+    </tr>
+    <tr>
+      <td>API testing inside VS Code</td>
+      <td>Thunder Client</td>
+    </tr>
+    <tr>
+      <td>Full platform features, monitors, and broad enterprise tooling</td>
+      <td>Postman (still a valid choice)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Also weigh <strong>collaboration model</strong>: vendor cloud sync, shared database, git repos, self-hosted hub, or no sharing at all. And weigh <strong>automation depth</strong>: post-request test scripts are enough for many teams; larger CI pipelines may still rely on code-based integration tests regardless of which client you use for manual exploration.</p>
+
+<h2 id="closing-thoughts">Closing thoughts</h2>
+
+<p>There is no single best Postman alternative. HarborClient stands out when privacy, local or self-hosted storage, and a free desktop workflow matter. Bruno fits git-centric teams. Hoppscotch and HTTPie cover quick and CLI paths. Thunder Client keeps testing inside the editor. Insomnia remains a strong option when you want a dedicated API client with GraphQL support.</p>
+
+<p>Pick based on where your collections should live, how your team collaborates, and whether you prefer desktop, browser, editor, or command-line tools. Start with one endpoint in the client that matches your workflow, import or recreate a small collection, and expand from there — the same progression that works with Postman applies to every alternative on this list.</p>]]></content><author><name>Sean</name></author><category term="rest-api" /><category term="testing" /><category term="tools" /><summary type="html"><![CDATA[Postman is the default API client for a lot of teams. It is polished, familiar, and covers most day-to-day REST testing needs. But not every project fits the same workflow. Pricing, required accounts, cloud sync, privacy requirements, or a preference for lighter tools often push developers to look elsewhere.]]></summary></entry><entry><title type="html">How to test REST APIs with Postman</title><link href="http://localhost:4001/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html" rel="alternate" type="text/html" title="How to test REST APIs with Postman" /><published>2026-06-23T17:00:00-04:00</published><updated>2026-06-23T17:00:00-04:00</updated><id>http://localhost:4001/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman</id><content type="html" xml:base="http://localhost:4001/rest-api/testing/2026/06/23/how-to-test-rest-apis-with-postman.html"><![CDATA[<p>Postman is one of the fastest ways to explore and validate a REST API without writing a full client. You can send requests, inspect responses, and repeat the same checks across environments — all from a single workspace.</p>
 
 <p>This guide walks through a practical workflow for testing REST APIs with Postman, from your first request to a small reusable test suite.</p>
 
