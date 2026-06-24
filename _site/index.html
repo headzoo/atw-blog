@@ -56,6 +56,36 @@
     <a class="rss-link" href="/feed.xml">Subscribe via RSS</a>
   </div><div class="post-feed"><article class="post post-preview post-preview--truncated">
       <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">testing</span><span class="post-category">tools</span></div><h2 class="post-title">
+          <a href="/rest-api/testing/tools/2026/06/24/harborclient-adds-plugin-support.html">HarborClient Adds Plugin Support</a>
+        </h2><figure class="post-featured-image"><a href="/rest-api/testing/tools/2026/06/24/harborclient-adds-plugin-support.html" aria-label="HarborClient Adds Plugin Support"><img src="/assets/images/harborclient-adds-plugin-support.png" alt="A harbor at sunset with glowing modular cubes connected to a central lighthouse, representing plugin integration" loading="lazy" decoding="async"></a></figure><div class="post-meta">
+          <time datetime="2026-06-24T14:00:00-04:00">Jun 24, 2026</time>
+        </div>
+      </header>
+      <div class="post-content"><p><a href="https://harborclient-blog.com/2026/06/24/harborclient-adds-plugin-support/">HarborClient 1.8.0</a> now supports installable plugins — extensions that add UI, themes, and HTTP hooks without waiting for a new app release. The full announcement is on the <a href="https://harborclient-blog.com/2026/06/24/harborclient-adds-plugin-support/">HarborClient blog</a>; here are the highlights.</p>
+
+<blockquote>
+  <p>Starting in HarborClient 1.8.0, you can go further: installable plugins that extend the app without waiting for a new release.</p>
+</blockquote>
+
+<p>That shift matters for teams who want custom tooling — audit tabs, logging middleware, branded themes — baked into their API client rather than maintained as separate scripts.</p>
+
+<blockquote>
+  <p>Plugins are packaged as <code class="language-plaintext highlighter-rouge">.hcp</code> files — HarborClient plugin packages that are really just ZIP archives with a friendly extension.</p>
+</blockquote>
+
+<p>You can install from a downloaded <code class="language-plaintext highlighter-rouge">.hcp</code> or <code class="language-plaintext highlighter-rouge">.zip</code>, clone from a public Git repository, or point HarborClient at an unpacked source folder while you develop.</p>
+
+<blockquote>
+  <p>Plugins use a permission-gated model similar to VS Code extensions.</p>
+</blockquote>
+
+<p>HarborClient shows what each plugin is asking for — UI contributions, scoped storage, filesystem access, HTTP hooks — before it activates. You can enable or disable any plugin later without uninstalling it.</p>
+
+<p>Together, these pieces mean HarborClient can grow through community extensions: sidebar panels, request tabs, custom themes, and main-process HTTP hooks for signing or logging traffic. For manifest reference, bundling with esbuild, and example plugins, read the <a href="https://harborclient-blog.com/2026/06/24/harborclient-adds-plugin-support/">full announcement</a>.</p>
+</div><p class="read-more">
+        <a href="/rest-api/testing/tools/2026/06/24/harborclient-adds-plugin-support.html">Read more &rarr;</a>
+      </p></article><article class="post post-preview post-preview--truncated">
+      <header class="post-header"><div class="post-categories"><span class="post-category">rest-api</span><span class="post-category">testing</span><span class="post-category">tools</span></div><h2 class="post-title">
           <a href="/rest-api/testing/tools/2026/06/24/postman-alternatives.html">Postman Alternatives</a>
         </h2><figure class="post-featured-image"><a href="/rest-api/testing/tools/2026/06/24/postman-alternatives.html" aria-label="Postman Alternatives"><img src="/assets/images/postman-alternatives.png" alt="An API request branching into desktop, terminal, browser, editor, and self-hosted tool options" loading="lazy" decoding="async"></a></figure><div class="post-meta">
           <time datetime="2026-06-24T08:00:00-04:00">Jun 24, 2026</time>
@@ -2738,6 +2768,9 @@ GET /orders?sort=status,-created_at
 </section></div><aside class="sidebar" aria-label="Recent posts">
   <h2 class="sidebar-heading">Recent posts</h2>
   <ul class="sidebar-post-list"><li class="">
+      <a href="/rest-api/testing/tools/2026/06/24/harborclient-adds-plugin-support.html">HarborClient Adds Plugin Support</a>
+      <time class="sidebar-post-date" datetime="2026-06-24T14:00:00-04:00">Jun 24, 2026</time>
+    </li><li class="">
       <a href="/rest-api/testing/tools/2026/06/24/postman-alternatives.html">Postman Alternatives</a>
       <time class="sidebar-post-date" datetime="2026-06-24T08:00:00-04:00">Jun 24, 2026</time>
     </li><li class="">
@@ -2776,9 +2809,6 @@ GET /orders?sort=status,-created_at
     </li><li class="">
       <a href="/rest-api/design/pagination/2025/08/18/pagination-filtering-and-sorting-in-rest-apis.html">Pagination, Filtering, and Sorting in REST APIs</a>
       <time class="sidebar-post-date" datetime="2025-08-18T05:15:00-04:00">Aug 18, 2025</time>
-    </li><li class="">
-      <a href="/rest-api/errors/design/2025/07/09/rest-api-error-responses-that-actually-help.html">REST API Error Responses That Actually Help</a>
-      <time class="sidebar-post-date" datetime="2025-07-09T10:30:00-04:00">Jul 9, 2025</time>
     </li></ul>
 </aside></div></div>
   </main><footer class="site-footer h-card">

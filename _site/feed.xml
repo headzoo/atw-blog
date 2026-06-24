@@ -1,4 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4001/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4001/" rel="alternate" type="text/html" /><updated>2026-06-24T10:11:25-04:00</updated><id>http://localhost:4001/feed.xml</id><title type="html">Application-to-Web Internals</title><subtitle>Discover the world of REST APIs with our comprehensive notes and insights. From basic concepts to advanced techniques, we provide valuable resources for developers and enthusiasts alike.</subtitle><author><name>Sean</name></author><entry><title type="html">Postman Alternatives</title><link href="http://localhost:4001/rest-api/testing/tools/2026/06/24/postman-alternatives.html" rel="alternate" type="text/html" title="Postman Alternatives" /><published>2026-06-24T08:00:00-04:00</published><updated>2026-06-24T08:00:00-04:00</updated><id>http://localhost:4001/rest-api/testing/tools/2026/06/24/postman-alternatives</id><content type="html" xml:base="http://localhost:4001/rest-api/testing/tools/2026/06/24/postman-alternatives.html"><![CDATA[<p>Postman is the default API client for a lot of teams. It is polished, familiar, and covers most day-to-day REST testing needs. But not every project fits the same workflow. Pricing, required accounts, cloud sync, privacy requirements, or a preference for lighter tools often push developers to look elsewhere.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4001/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4001/" rel="alternate" type="text/html" /><updated>2026-06-24T14:26:10-04:00</updated><id>http://localhost:4001/feed.xml</id><title type="html">Application-to-Web Internals</title><subtitle>Discover the world of REST APIs with our comprehensive notes and insights. From basic concepts to advanced techniques, we provide valuable resources for developers and enthusiasts alike.</subtitle><author><name>Sean</name></author><entry><title type="html">HarborClient Adds Plugin Support</title><link href="http://localhost:4001/rest-api/testing/tools/2026/06/24/harborclient-adds-plugin-support.html" rel="alternate" type="text/html" title="HarborClient Adds Plugin Support" /><published>2026-06-24T14:00:00-04:00</published><updated>2026-06-24T14:00:00-04:00</updated><id>http://localhost:4001/rest-api/testing/tools/2026/06/24/harborclient-adds-plugin-support</id><content type="html" xml:base="http://localhost:4001/rest-api/testing/tools/2026/06/24/harborclient-adds-plugin-support.html"><![CDATA[<p><a href="https://harborclient-blog.com/2026/06/24/harborclient-adds-plugin-support/">HarborClient 1.8.0</a> now supports installable plugins — extensions that add UI, themes, and HTTP hooks without waiting for a new app release. The full announcement is on the <a href="https://harborclient-blog.com/2026/06/24/harborclient-adds-plugin-support/">HarborClient blog</a>; here are the highlights.</p>
+
+<blockquote>
+  <p>Starting in HarborClient 1.8.0, you can go further: installable plugins that extend the app without waiting for a new release.</p>
+</blockquote>
+
+<p>That shift matters for teams who want custom tooling — audit tabs, logging middleware, branded themes — baked into their API client rather than maintained as separate scripts.</p>
+
+<blockquote>
+  <p>Plugins are packaged as <code class="language-plaintext highlighter-rouge">.hcp</code> files — HarborClient plugin packages that are really just ZIP archives with a friendly extension.</p>
+</blockquote>
+
+<p>You can install from a downloaded <code class="language-plaintext highlighter-rouge">.hcp</code> or <code class="language-plaintext highlighter-rouge">.zip</code>, clone from a public Git repository, or point HarborClient at an unpacked source folder while you develop.</p>
+
+<blockquote>
+  <p>Plugins use a permission-gated model similar to VS Code extensions.</p>
+</blockquote>
+
+<p>HarborClient shows what each plugin is asking for — UI contributions, scoped storage, filesystem access, HTTP hooks — before it activates. You can enable or disable any plugin later without uninstalling it.</p>
+
+<p>Together, these pieces mean HarborClient can grow through community extensions: sidebar panels, request tabs, custom themes, and main-process HTTP hooks for signing or logging traffic. For manifest reference, bundling with esbuild, and example plugins, read the <a href="https://harborclient-blog.com/2026/06/24/harborclient-adds-plugin-support/">full announcement</a>.</p>]]></content><author><name>Sean</name></author><category term="rest-api" /><category term="testing" /><category term="tools" /><summary type="html"><![CDATA[HarborClient 1.8.0 now supports installable plugins — extensions that add UI, themes, and HTTP hooks without waiting for a new app release. The full announcement is on the HarborClient blog; here are the highlights.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4001/assets/images/harborclient-adds-plugin-support.png" /><media:content medium="image" url="http://localhost:4001/assets/images/harborclient-adds-plugin-support.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Postman Alternatives</title><link href="http://localhost:4001/rest-api/testing/tools/2026/06/24/postman-alternatives.html" rel="alternate" type="text/html" title="Postman Alternatives" /><published>2026-06-24T08:00:00-04:00</published><updated>2026-06-24T08:00:00-04:00</updated><id>http://localhost:4001/rest-api/testing/tools/2026/06/24/postman-alternatives</id><content type="html" xml:base="http://localhost:4001/rest-api/testing/tools/2026/06/24/postman-alternatives.html"><![CDATA[<p>Postman is the default API client for a lot of teams. It is polished, familiar, and covers most day-to-day REST testing needs. But not every project fits the same workflow. Pricing, required accounts, cloud sync, privacy requirements, or a preference for lighter tools often push developers to look elsewhere.</p>
 
 <p>This guide surveys practical Postman alternatives — from desktop apps that keep your data local to browser and editor tools that fit different workflows. None of these tools need to replace Postman entirely; the right choice depends on how you work, who you collaborate with, and where you want your collections to live.</p>
 
@@ -1636,184 +1656,4 @@ Authorization: Bearer sk_live_123
 
 <p>API keys are simple, JWTs are portable, and OAuth 2.0 handles delegated access. They can also work together: an OAuth access token may be a JWT, and an internal service may still use an API key for automation.</p>
 
-<p>Choose the smallest model that fits the trust boundary. Then invest in validation, rotation, scopes, and monitoring. That is where authentication becomes reliable in production.</p>]]></content><author><name>Sean</name></author><category term="rest-api" /><category term="authentication" /><category term="security" /><summary type="html"><![CDATA[API authentication answers a simple question: who is calling? The right answer depends on the kind of client, the sensitivity of the data, and how much delegation the system needs.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4001/assets/images/api-authentication-compared-api-keys-jwt-and-oauth-2-0.png" /><media:content medium="image" url="http://localhost:4001/assets/images/api-authentication-compared-api-keys-jwt-and-oauth-2-0.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">CORS Explained for API Developers</title><link href="http://localhost:4001/rest-api/http/cors/2025/11/22/cors-explained-for-api-developers.html" rel="alternate" type="text/html" title="CORS Explained for API Developers" /><published>2025-11-22T11:05:00-05:00</published><updated>2025-11-22T11:05:00-05:00</updated><id>http://localhost:4001/rest-api/http/cors/2025/11/22/cors-explained-for-api-developers</id><content type="html" xml:base="http://localhost:4001/rest-api/http/cors/2025/11/22/cors-explained-for-api-developers.html"><![CDATA[<p>CORS errors are frustrating because the API can work perfectly in curl while failing in the browser. That is the clue: CORS is a browser security feature, not a general HTTP feature.</p>
-
-<p>If you build APIs that browsers call directly, you need to understand what the browser is asking for and which headers your server must return.</p>
-
-<h2 id="what-cors-protects">What CORS protects</h2>
-
-<p>Browsers enforce the same-origin policy. A script loaded from one origin cannot freely read responses from another origin.</p>
-
-<p>An origin is the combination of:</p>
-
-<ul>
-  <li>Scheme: <code class="language-plaintext highlighter-rouge">https</code></li>
-  <li>Host: <code class="language-plaintext highlighter-rouge">app.example.com</code></li>
-  <li>Port: <code class="language-plaintext highlighter-rouge">443</code></li>
-</ul>
-
-<p>These are different origins:</p>
-
-<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://app.example.com
-https://api.example.com
-http://app.example.com
-https://app.example.com:8443
-</code></pre></div></div>
-
-<p>CORS, short for Cross-Origin Resource Sharing, is the mechanism that lets a server opt in to being called from another origin.</p>
-
-<h2 id="simple-requests">Simple requests</h2>
-
-<p>Some browser requests are considered simple. For example:</p>
-
-<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET /users/me
-Origin: https://app.example.com
-</span></code></pre></div></div>
-
-<p>If the API allows that origin, it responds with:</p>
-
-<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Access-Control-Allow-Origin: https://app.example.com
-</span></code></pre></div></div>
-
-<p>The browser checks that header before making the response available to JavaScript. If the header is missing or does not match, the browser blocks the response even if the server returned <code class="language-plaintext highlighter-rouge">200 OK</code>.</p>
-
-<h2 id="preflight-requests">Preflight requests</h2>
-
-<p>Many API calls trigger a preflight request. The browser sends an <code class="language-plaintext highlighter-rouge">OPTIONS</code> request first to ask whether the real request is allowed.</p>
-
-<p>Example:</p>
-
-<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">OPTIONS /users/me
-Origin: https://app.example.com
-Access-Control-Request-Method: PATCH
-Access-Control-Request-Headers: authorization, content-type
-</span></code></pre></div></div>
-
-<p>The API should respond:</p>
-
-<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">204</span> <span class="ne">No Content</span>
-<span class="na">Access-Control-Allow-Origin</span><span class="p">:</span> <span class="s">https://app.example.com</span>
-<span class="na">Access-Control-Allow-Methods</span><span class="p">:</span> <span class="s">GET, POST, PATCH, DELETE</span>
-<span class="na">Access-Control-Allow-Headers</span><span class="p">:</span> <span class="s">Authorization, Content-Type</span>
-<span class="na">Access-Control-Max-Age</span><span class="p">:</span> <span class="s">600</span>
-</code></pre></div></div>
-
-<p>If the preflight succeeds, the browser sends the real <code class="language-plaintext highlighter-rouge">PATCH</code> request.</p>
-
-<h2 id="common-cors-headers">Common CORS headers</h2>
-
-<p>The headers you will use most often are:</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Header</th>
-      <th>Purpose</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code class="language-plaintext highlighter-rouge">Access-Control-Allow-Origin</code></td>
-      <td>Which origin may read the response</td>
-    </tr>
-    <tr>
-      <td><code class="language-plaintext highlighter-rouge">Access-Control-Allow-Methods</code></td>
-      <td>Which methods are allowed for preflighted requests</td>
-    </tr>
-    <tr>
-      <td><code class="language-plaintext highlighter-rouge">Access-Control-Allow-Headers</code></td>
-      <td>Which request headers are allowed</td>
-    </tr>
-    <tr>
-      <td><code class="language-plaintext highlighter-rouge">Access-Control-Allow-Credentials</code></td>
-      <td>Whether cookies or HTTP auth may be included</td>
-    </tr>
-    <tr>
-      <td><code class="language-plaintext highlighter-rouge">Access-Control-Expose-Headers</code></td>
-      <td>Which response headers JavaScript may read</td>
-    </tr>
-    <tr>
-      <td><code class="language-plaintext highlighter-rouge">Access-Control-Max-Age</code></td>
-      <td>How long the browser may cache preflight results</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Most CORS bugs come from a missing allowed header, an origin mismatch, or credentials being configured incorrectly.</p>
-
-<h2 id="be-careful-with-credentials">Be careful with credentials</h2>
-
-<p>Credentialed requests include cookies, client certificates, or HTTP authentication. In <code class="language-plaintext highlighter-rouge">fetch</code>, that usually means:</p>
-
-<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">fetch</span><span class="p">(</span><span class="dl">"</span><span class="s2">https://api.example.com/users/me</span><span class="dl">"</span><span class="p">,</span> <span class="p">{</span>
-  <span class="na">credentials</span><span class="p">:</span> <span class="dl">"</span><span class="s2">include</span><span class="dl">"</span>
-<span class="p">});</span>
-</code></pre></div></div>
-
-<p>For this to work, the server must return:</p>
-
-<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Access-Control-Allow-Origin: https://app.example.com
-Access-Control-Allow-Credentials: true
-</span></code></pre></div></div>
-
-<p>You cannot combine credentialed requests with:</p>
-
-<div class="language-http highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">Access-Control-Allow-Origin: *
-</span></code></pre></div></div>
-
-<p>The server must echo or select a specific allowed origin.</p>
-
-<h2 id="do-not-use-cors-as-authentication">Do not use CORS as authentication</h2>
-
-<p>CORS limits which browser origins can read responses. It does not prove who the user is, and it does not stop non-browser clients from calling your API.</p>
-
-<p>Your API still needs real authentication and authorization:</p>
-
-<ul>
-  <li>Session cookies</li>
-  <li>Bearer tokens</li>
-  <li>API keys</li>
-  <li>OAuth 2.0 access tokens</li>
-</ul>
-
-<p>CORS is a browser access control layer. It is not a security model for your entire API.</p>
-
-<h2 id="configure-allowed-origins-explicitly">Configure allowed origins explicitly</h2>
-
-<p>For production, prefer an allowlist:</p>
-
-<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://app.example.com
-https://admin.example.com
-</code></pre></div></div>
-
-<p>Avoid reflecting any incoming <code class="language-plaintext highlighter-rouge">Origin</code> header without checking it. That turns CORS into “allow everyone” while making the configuration look more controlled than it is.</p>
-
-<p>For local development, add explicit local origins:</p>
-
-<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://localhost:3000
-http://localhost:5173
-</code></pre></div></div>
-
-<p>Keep development origins out of production if they are not needed there.</p>
-
-<h2 id="debugging-checklist">Debugging checklist</h2>
-
-<p>When a browser reports a CORS error, check:</p>
-
-<ul>
-  <li>Is the request coming from the origin you expect?</li>
-  <li>Does the response include <code class="language-plaintext highlighter-rouge">Access-Control-Allow-Origin</code>?</li>
-  <li>For preflight, does the <code class="language-plaintext highlighter-rouge">OPTIONS</code> route return success?</li>
-  <li>Are the requested method and headers allowed?</li>
-  <li>Are credentials enabled on both client and server if cookies are used?</li>
-  <li>Is the API redirecting the preflight request?</li>
-  <li>Is a proxy or CDN stripping CORS headers?</li>
-</ul>
-
-<p>Use the browser network panel. The console message is helpful, but the request and response headers tell the real story.</p>
-
-<h2 id="closing-thoughts">Closing thoughts</h2>
-
-<p>CORS is easier once you separate the browser rule from the API behavior. The server decides which origins, methods, and headers are allowed. The browser enforces that decision before JavaScript can read the response.</p>
-
-<p>Start with a small allowlist, handle <code class="language-plaintext highlighter-rouge">OPTIONS</code> correctly, and test both simple and credentialed requests. That covers most real-world CORS issues without weakening the API.</p>]]></content><author><name>Sean</name></author><category term="rest-api" /><category term="http" /><category term="cors" /><summary type="html"><![CDATA[CORS errors are frustrating because the API can work perfectly in curl while failing in the browser. That is the clue: CORS is a browser security feature, not a general HTTP feature.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4001/assets/images/cors-explained-for-api-developers.png" /><media:content medium="image" url="http://localhost:4001/assets/images/cors-explained-for-api-developers.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>
+<p>Choose the smallest model that fits the trust boundary. Then invest in validation, rotation, scopes, and monitoring. That is where authentication becomes reliable in production.</p>]]></content><author><name>Sean</name></author><category term="rest-api" /><category term="authentication" /><category term="security" /><summary type="html"><![CDATA[API authentication answers a simple question: who is calling? The right answer depends on the kind of client, the sensitivity of the data, and how much delegation the system needs.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4001/assets/images/api-authentication-compared-api-keys-jwt-and-oauth-2-0.png" /><media:content medium="image" url="http://localhost:4001/assets/images/api-authentication-compared-api-keys-jwt-and-oauth-2-0.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>
