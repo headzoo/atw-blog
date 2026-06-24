@@ -11,7 +11,7 @@ layout: default
   </div>
   <div class="hero-actions">
     <a class="btn btn-primary" href="#latest-posts">Browse posts</a>
-    <a class="btn btn-secondary" href="{{ " /about/" | relative_url }}">About this site</a>
+    <a class="btn btn-secondary" href="{{ '/about/' | relative_url }}">About this site</a>
   </div>
 </section>
 
@@ -19,7 +19,7 @@ layout: default
 <section class="posts-section" id="latest-posts">
   <div class="section-header">
     <h2 class="post-list-heading">{{ page.list_title | default: "Latest posts" }}</h2>
-    <a class="rss-link" href="{{ " /feed.xml" | relative_url }}">Subscribe via RSS</a>
+    <a class="rss-link" href="{{ '/feed.xml' | relative_url }}">Subscribe via RSS</a>
   </div>
 
   <ul class="post-list">

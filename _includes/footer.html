@@ -1,10 +1,10 @@
 <footer class="site-footer h-card">
-  <data class="u-url" href="{{ " /" | relative_url }}"></data>
+  <data class="u-url" href="{{ '/' | relative_url }}"></data>
 
   <div class="wrapper">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a class="footer-logo-link" href="{{ " /" | relative_url }}">
+        <a class="footer-logo-link" href="{{ '/' | relative_url }}">
           <span class="site-logo site-logo--footer" aria-hidden="true">ATW</span>
           <span class="footer-heading">{{ site.title | escape }}</span>
         </a>
@@ -20,8 +20,8 @@
           {%- if site.github_username -%}
           <li><a href="https://github.com/{{ site.github_username }}" rel="me">GitHub</a></li>
           {%- endif -%}
-          <li><a href="{{ " /feed.xml" | relative_url }}">RSS Feed</a></li>
-          <li><a href="{{ " /about/" | relative_url }}">About</a></li>
+          <li><a href="{{ '/feed.xml' | relative_url }}">RSS Feed</a></li>
+          <li><a href="{{ '/about/' | relative_url }}">About</a></li>
         </ul>
       </div>
 

@@ -1,6 +1,6 @@
 <header class="site-header" role="banner">
   <div class="wrapper header-inner">
-    <a class="site-brand" rel="author" href="{{ " /" | relative_url }}">
+    <a class="site-brand" rel="author" href="{{ '/' | relative_url }}">
       <span class="site-logo" aria-hidden="true">ATW</span>
       <span class="site-title">{{ site.title | escape }}</span>
     </a>
@@ -26,7 +26,7 @@
         <a class="page-link" href="{{ my_page.url | relative_url }}">{{ my_page.title | escape }}</a>
         {%- endif -%}
         {%- endfor -%}
-        <a class="page-link page-link--rss" href="{{ " /feed.xml" | relative_url }}">RSS</a>
+        <a class="page-link page-link--rss" href="{{ '/feed.xml' | relative_url }}">RSS</a>
       </div>
     </nav>
     {%- endif -%}
