@@ -9,7 +9,7 @@ image_alt: "A harbor scene with glowing modular plugin blocks and code, represen
 
 [HarborClient](https://harborclient.com/) plugins let you extend the app with installable packages — custom tabs, sidebar panels, themes, HTTP hooks, and persistent storage — without waiting for a new release. Each plugin ships as a `.hcp` file, which is really just a ZIP archive with a friendly extension.
 
-If you have not read the announcement yet, start with [HarborClient Adds Plugin Support](https://harborclient-blog.com/2026/06/24/harborclient-adds-plugin-support/) for the big picture. This guide walks through building your first plugin step by step, using the official [plugin API docs](https://harborclient.github.io/plugin-api/) as reference.
+If you have not read the announcement yet, start with [HarborClient Adds Plugin Support](https://harborclient-blog.com/2026/06/24/harborclient-adds-plugin-support/) for the big picture. This guide walks through building your first plugin step by step, using the official [plugin API docs](https://harborclient.github.io/sdk/) as reference.
 
 HarborClient already has [request scripts](https://harborclient.com/request-scripts) that run once per send inside a sandboxed utility process. Plugins are different: they are long-lived extensions with a broader API suited to UI contributions, themes, storage, and HTTP hooks that stay active until you disable the plugin.
 
@@ -17,7 +17,7 @@ HarborClient already has [request scripts](https://harborclient.com/request-scri
 
 You will create a **Request Audit** tab — a read-only panel in the request editor that summarizes the active draft as JSON: method, URL, header count, whether a body is present, and the last response status.
 
-This example comes straight from the [request audit tab docs](https://harborclient.github.io/plugin-api/examples/request-audit-tab.html). It is a good first plugin because it needs only the `ui` permission and a single renderer entry — no main-process code, no IPC, no filesystem access.
+This example comes straight from the [request audit tab docs](https://harborclient.github.io/sdk/examples/request-audit-tab.html). It is a good first plugin because it needs only the `ui` permission and a single renderer entry — no main-process code, no IPC, no filesystem access.
 
 ## Prerequisites
 
@@ -25,7 +25,7 @@ Before you start, make sure you have:
 
 - **HarborClient 1.8.0 or later** — base plugin support. Use **1.9.0+** if you want `hc.pluginId`, renderer-side `onAfterSend`, or `hc.host.openRequestDraft`.
 - **Node.js** and **pnpm**
-- **`@harborclient/plugin-api`** as a dev dependency in your plugin project
+- **`@harborclient/sdk`** as a dev dependency in your plugin project
 
 ## Scaffold the project
 
@@ -88,8 +88,8 @@ There is an important contract between the manifest and your code: contribution 
 Create `src/renderer.tsx`. Every renderer plugin starts with two steps: wire up React from the host, then register contributions inside `activate()`.
 
 ```tsx
-import { installReact } from '@harborclient/plugin-api';
-import type { PluginContext, RequestTabContext } from '@harborclient/plugin-api';
+import { installReact } from '@harborclient/sdk';
+import type { PluginContext, RequestTabContext } from '@harborclient/sdk';
 
 function AuditTab({ context }: { context: RequestTabContext }) {
   const { draft, response } = context;
@@ -133,13 +133,13 @@ Bundle with esbuild. A typical renderer build script looks like this:
 ```bash
 esbuild src/renderer.tsx \
   --bundle --outfile=dist/renderer.js --format=esm \
-  --jsx=automatic --jsx-import-source=@harborclient/plugin-api \
+  --jsx=automatic --jsx-import-source=@harborclient/sdk \
   --external:react --external:react-dom
 ```
 
 In `package.json`, wire that into `dev` and `build` scripts. Use `--watch` on the dev script so rebuilds happen automatically while you edit.
 
-For TypeScript, set `jsx: "react-jsx"` and `jsxImportSource: "@harborclient/plugin-api"` in `tsconfig.json`. Import types from `@harborclient/plugin-api` and export `activate` (and optionally `deactivate`) as named exports.
+For TypeScript, set `jsx: "react-jsx"` and `jsxImportSource: "@harborclient/sdk"` in `tsconfig.json`. Import types from `@harborclient/sdk` and export `activate` (and optionally `deactivate`) as named exports.
 
 ## Develop with unpacked loading
 
@@ -167,7 +167,7 @@ Once the audit tab works, you can explore other APIs without changing the basic 
 UI code belongs in the renderer entry. If you need to **mutate** outgoing requests — inject headers, sign payloads, add trace IDs — add a separate main entry that runs in the SES utility process:
 
 ```typescript
-import type { MainPluginContext } from '@harborclient/plugin-api/main';
+import type { MainPluginContext } from '@harborclient/sdk/main';
 
 export function activate(hc: MainPluginContext): void {
   hc.subscriptions.push(
@@ -207,17 +207,17 @@ hc.ui.registerSettingsSection({
 });
 ```
 
-You can also add sidebar panels, response tabs, footer panels, toolbar actions, context menu items, status bar entries, and custom themes. See the [UI contributions reference](https://harborclient.github.io/plugin-api/renderer-ui.html) for the full list.
+You can also add sidebar panels, response tabs, footer panels, toolbar actions, context menu items, status bar entries, and custom themes. See the [UI contributions reference](https://harborclient.github.io/sdk/renderer-ui.html) for the full list.
 
 ### SDK helpers
 
-The npm package ships utility subpaths for common plugin tasks (requires `@harborclient/plugin-api` 0.3.1+):
+The npm package ships utility subpaths for common plugin tasks (requires `@harborclient/sdk` 0.4.1+):
 
 ```typescript
-import { resolveRequest } from '@harborclient/plugin-api/http';
-import { createCappedList } from '@harborclient/plugin-api/storage';
-import { methodColorClass } from '@harborclient/plugin-api/ui';
-import { randomId } from '@harborclient/plugin-api/runtime-utils';
+import { resolveRequest } from '@harborclient/sdk/http';
+import { createCappedList } from '@harborclient/sdk/storage';
+import { methodColorClass } from '@harborclient/sdk/ui';
+import { randomId } from '@harborclient/sdk/runtime-utils';
 ```
 
 `resolveRequest` mirrors HarborClient's send-time variable substitution — useful if you build history or audit plugins that need the resolved URL and headers.
@@ -244,4 +244,4 @@ Before you share your plugin, confirm:
 - [ ] Tested with Load unpacked and hot reload
 - [ ] Packaged as `.hcp` for distribution
 
-For the full API reference, worked examples, and performance guidelines, keep the [plugin API docs](https://harborclient.github.io/plugin-api/) open while you build.
+For the full API reference, worked examples, and performance guidelines, keep the [plugin API docs](https://harborclient.github.io/sdk/) open while you build.
