@@ -724,6 +724,7 @@ blockquote > :last-child {
 
 /* ===== TABLES ===== */
 
+.post-content table,
 table {
   width: 100%;
   border-collapse: collapse;
@@ -735,36 +736,42 @@ table {
   overflow: hidden;
 }
 
+.post-content table tr:nth-child(even),
 table tr:nth-child(even) {
   background-color: transparent;
 }
 
-thead {
-  background: var(--color-border-subtle);
+.post-content table thead,
+table thead {
+  background: var(--color-surface);
 }
 
-th {
+.post-content table th,
+table th {
   padding: 0.75rem 1rem;
   font-weight: 600;
   text-align: left;
   color: var(--color-text);
-  background-color: var(--color-border-subtle);
+  background-color: var(--color-surface);
   border: none;
   border-bottom: 1px solid var(--color-border);
 }
 
-td {
+.post-content table td,
+table td {
   padding: 0.75rem 1rem;
   color: var(--color-text);
   border: none;
   border-bottom: 1px solid var(--color-border);
 }
 
-tbody tr:last-child td {
+.post-content table tbody tr:last-child td,
+table tbody tr:last-child td {
   border-bottom: none;
 }
 
-tbody tr:hover {
+.post-content table tbody tr:hover,
+table tbody tr:hover {
   background: var(--color-border-subtle);
 }
 
